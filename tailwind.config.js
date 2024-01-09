@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'card': '0 3px 7px 2px rgba(7, 30, 54, 0.22)',
+      },
       colors: {
         primary: {
           '50': '#f1f8fd',

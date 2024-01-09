@@ -1,4 +1,4 @@
-import logo from '../logo-light.svg';
+import logo from '../assets/logo-light.svg';
 import Icon from '@mdi/react';
 import { mdiLoginVariant } from '@mdi/js';
 import { Link } from "react-router-dom";

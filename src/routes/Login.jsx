@@ -1,13 +1,14 @@
 import TheHeader from '../components/TheHeader';
 import TheFooter from '../components/TheFooter';
+import bg from '../assets/login-bg.jpg';
 
 function Login() {
   return (
     <>
-      <div className="App bg-[#d3dae1]">
+      <div className="App" style={{ backgroundImage: `url(${bg})` }}>
         <TheHeader />
         <div id="content" className="flex items-center justify-center text-defaultText">
-          <div className="block w-[24rem] max-w-full mx-5 px-3 pt-3 pb-2.5 shadow-lg border-slate-200 bg-white border-[5px] flex-shrink-0">
+          <div className="block w-[24rem] max-w-full mx-5 px-3 pt-3 pb-2.5 shadow-card border-slate-200 bg-white border-[5px] flex-shrink-0">
             <h1 className="text-3xl font-semibold text-center mt-1 mb-6">
               Login
             </h1>
