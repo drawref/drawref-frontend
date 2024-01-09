@@ -11,8 +11,8 @@ function Login() {
             <h1 className="text-3xl font-semibold text-center mt-1 mb-6">
               Login
             </h1>
-            <div class="bg-slate-800 text-white text-center text-lg py-1.5 rounded cursor-pointer my-2">Sign in with GitHub</div>
-            <div class="bg-white border-[3px] border-slate-200 text-center text-lg py-1 rounded cursor-pointer my-2">Sign in with Google</div>
+            <div className="bg-slate-800 text-white text-center text-lg py-1.5 rounded cursor-pointer my-2">Sign in with GitHub</div>
+            <div className="bg-white border-[3px] border-slate-200 text-center text-lg py-1 rounded cursor-pointer my-2">Sign in with Google</div>
           </div>
         </div>
         <TheFooter />
