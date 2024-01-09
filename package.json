@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@fontsource/open-sans": "^5.0.20",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@rneui/base": "^4.0.0-rc.8",
