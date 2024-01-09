@@ -1,6 +1,8 @@
 import logo from './logo-light.svg';
 
-import { Button, createTheme, ThemeProvider } from "@rneui/themed";
+import { createTheme, ThemeProvider } from "@rneui/themed";
+import Icon from '@mdi/react';
+import { mdiLoginVariant } from '@mdi/js';
 
 const theme = createTheme({
   lightColors: {
@@ -18,8 +20,24 @@ function App() {
       <ThemeProvider theme={theme}>
         <div className="App">
           <header className="bg-[#4788d5] flex justify-between items-center px-2 py-1">
+            <a href="/login" className="px-2 py-2 text-white invisible sm:hidden">
+              <Icon path={mdiLoginVariant}
+                title="Login"
+                size={1.1}
+                className="text-white"
+              />
+            </a>
             <a href="/" className="block px-3 py-1.5"><img src={logo} alt="DrawRef logo" /></a>
-            <a href="/login" className="mx-5 my-2 text-white text-lg">Login</a>
+            <div className="flex">
+              <a href="/login" className="mx-5 my-2 text-white text-lg hidden sm:block">Login</a>
+              <a href="/login" className="px-2 py-2 text-white sm:hidden">
+                <Icon path={mdiLoginVariant}
+                  title="Login"
+                  size={1.1}
+                  className="text-white"
+                />
+              </a>
+            </div>
           </header>
           <div id="content" className="text-center text-[#0d2748]">
             <h1 className="text-3xl font-semibold mt-8 mb-3">
