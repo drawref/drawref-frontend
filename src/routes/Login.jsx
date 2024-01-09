@@ -14,11 +14,11 @@ function Login() {
             <h1 className="text-3xl font-semibold text-center mt-1 mb-7">
               Login
             </h1>
-            <div className="bg-slate-800 text-white text-center font-semibold text-lg py-2.5 rounded-sm cursor-pointer my-2.5 flex pl-12 gap-4 items-center">
+            <div className="bg-slate-800 text-white text-center font-semibold text-lg py-[0.68rem] rounded-sm cursor-pointer my-2.5 flex pl-12 gap-4 items-center">
               <img src={github} alt="GitHub logo" className="h-7" />
               <span>Sign in with GitHub</span>
             </div>
-            <div className="bg-white border-[3px] border-slate-200 text-center text-lg py-2 rounded cursor-pointer my-2.5 flex pl-12 gap-4 items-center">
+            <div className="bg-white border-[3px] border-slate-200 text-center font-semibold text-lg py-2 rounded cursor-pointer my-2.5 flex pl-[2.85rem] gap-4 items-center">
               <img src={google} alt="Google logo" className="h-7" />
               <span>Sign in with Google</span>
             </div>

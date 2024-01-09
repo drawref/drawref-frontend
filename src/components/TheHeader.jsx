@@ -16,7 +16,7 @@ function TheHeader() {
         </Link>
         <Link to="/" className="block px-3 py-1.5"><img src={logo} alt="DrawRef logo" /></Link>
         <div className="flex">
-          <Link to="/login" className="mx-5 my-2 text-white text-lg hidden sm:block">Login</Link>
+          <Link to="/login" className="mx-5 my-2 text-white text-lg font-semibold hidden sm:block">Login</Link>
           <Link to="/login" className="px-2 py-2 text-white sm:hidden">
             <Icon path={mdiLoginVariant}
               title="Login"
