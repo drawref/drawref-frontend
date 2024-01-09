@@ -18,7 +18,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <div className="App">
+        <div className="App bg-white">
           <header className="sticky top-0 bg-primary-600 flex justify-between items-center px-2 py-1">
             <a href="/login" className="px-2 py-2 text-white invisible sm:hidden">
               <Icon path={mdiLoginVariant}
@@ -44,24 +44,24 @@ function App() {
               Select a category
             </h1>
             <div className="flex w-[60rem] max-w-full px-4 mx-auto flex-wrap justify-center gap-5 my-8">
-              <a href="/" className="block w-[16rem] h-[18rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
-                <div className="w-full h-[13.5rem] bg-slate-300 rounded"></div>
+              <a href="/" className="block w-[15rem] h-[17rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
+                <div className="w-full h-[12.5rem] bg-slate-300 rounded"></div>
                 <h2 className="font-semibold mt-2 text-2xl">Poses</h2>
               </a>
-              <a href="/" className="w-[16rem] h-[18rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
-                <div className="w-full h-[13.5rem] bg-slate-300 rounded"></div>
+              <a href="/" className="block w-[15rem] h-[17rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
+                <div className="w-full h-[12.5rem] bg-slate-300 rounded"></div>
                 <h2 className="font-semibold mt-2 text-2xl">Faces</h2>
               </a>
-              <a href="/" className="w-[16rem] h-[18rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
-                <div className="w-full h-[13.5rem] bg-slate-300 rounded"></div>
+              <a href="/" className="block w-[15rem] h-[17rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
+                <div className="w-full h-[12.5rem] bg-slate-300 rounded"></div>
                 <h2 className="font-semibold mt-2 text-2xl">Animals</h2>
               </a>
-              <a href="/" className="w-[16rem] h-[18rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
-                <div className="w-full h-[13.5rem] bg-slate-300 rounded"></div>
+              <a href="/" className="block w-[15rem] h-[17rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
+                <div className="w-full h-[12.5rem] bg-slate-300 rounded"></div>
                 <h2 className="font-semibold mt-2 text-2xl">Hands</h2>
               </a>
-              <a href="/" className="w-[16rem] h-[18rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
-                <div className="w-full h-[13.5rem] bg-slate-300 rounded"></div>
+              <a href="/" className="block w-[15rem] h-[17rem] px-3 py-3 shadow-lg border-slate-200 border-[5px] flex-shrink-0">
+                <div className="w-full h-[12.5rem] bg-slate-300 rounded"></div>
                 <h2 className="font-semibold mt-2 text-2xl">Plants</h2>
               </a>
             </div>
