@@ -1,3 +1,20 @@
+/* sticky footer */
+html {
+  min-height: 100%;
+  display: flex;
+}
+body, #root, #root > .App {
+  min-height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+#content {
+  flex: 1 1 auto;
+}
+
+/* defaults */
 body {
   margin: 0;
   font-family: 'Open Sans', sans-serif;
@@ -10,6 +27,7 @@ code {
     monospace;
 }
 
+/* tailwindcss */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
