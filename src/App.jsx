@@ -39,7 +39,7 @@ function App() {
               </a>
             </div>
           </header>
-          <div id="content" className="text-center text-[#0d2748]">
+          <div id="content" className="bg-white text-center text-[#0d2748]">
             <h1 className="text-3xl font-semibold mt-11 mb-3">
               Select a category
             </h1>
