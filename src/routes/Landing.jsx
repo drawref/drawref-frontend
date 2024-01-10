@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import TheHeader from '../components/TheHeader';
 import TheFooter from '../components/TheFooter';
+import LandingCategoryCard from '../components/LandingCategoryCard'
 import pose from '../assets/default-categories/default-pose.jpg';
 import face from '../assets/default-categories/default-head.jpg';
 
@@ -15,26 +16,11 @@ function Landing() {
             Select a category
           </h1>
           <div className="flex w-[60rem] max-w-full px-4 mx-auto flex-wrap justify-center items-center my-8 gap-8 md:gap-12">
-            <Link to="/" className="block w-[15rem] px-3 py-3 shadow-card border-slate-200 border-[5px] flex-shrink-0">
-              <div className="w-full h-[12.5rem] bg-zinc-300 bg-cover rounded" style={{ backgroundImage: `url(${pose})` }}></div>
-              <h2 className="font-medium mt-2 -mb-1 text-2xl">Poses</h2>
-            </Link>
-            <Link to="/" className="block w-[15rem] px-3 py-3 shadow-card border-slate-200 border-[5px] flex-shrink-0">
-              <div className="w-full h-[12.5rem] bg-zinc-300 bg-cover rounded" style={{ backgroundImage: `url(${face})` }}></div>
-              <h2 className="font-medium mt-2 -mb-1 text-2xl">Faces</h2>
-            </Link>
-            <Link to="/" className="block w-[15rem] px-3 py-3 shadow-card border-slate-200 border-[5px] flex-shrink-0">
-              <div className="w-full h-[12.5rem] bg-zinc-300 rounded"></div>
-              <h2 className="font-medium mt-2 -mb-1 text-2xl">Animals</h2>
-            </Link>
-            <Link to="/" className="block w-[15rem] px-3 py-3 shadow-card border-slate-200 border-[5px] flex-shrink-0">
-              <div className="w-full h-[12.5rem] bg-zinc-300 rounded"></div>
-              <h2 className="font-medium mt-2 -mb-1 text-2xl">Hands</h2>
-            </Link>
-            <Link to="/" className="block w-[15rem] px-3 py-3 shadow-card border-slate-200 border-[5px] flex-shrink-0">
-              <div className="w-full h-[12.5rem] bg-zinc-300 rounded"></div>
-              <h2 className="font-medium mt-2 -mb-1 text-2xl">Plants</h2>
-            </Link>
+            <LandingCategoryCard categoryKey="poses" name="Poses" imageUrl={ `${pose}` } />
+            <LandingCategoryCard categoryKey="faces" name="Faces" imageUrl={ `${face}` } />
+            <LandingCategoryCard categoryKey="animals" name="Animals" />
+            <LandingCategoryCard categoryKey="hands" name="Hands" />
+            <LandingCategoryCard categoryKey="plants" name="Plants" />
           </div>
         </div>
         <TheFooter />

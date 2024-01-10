@@ -3,6 +3,6 @@ import Landing from './Landing';
 
 test('renders page header', () => {
   render(<Landing />);
-  const linkElement = screen.getByText(/select a category/i);
-  expect(linkElement).toBeInTheDocument();
+  const h1Element = screen.getByText(/select a category/i);
+  expect(h1Element).toBeInTheDocument();
 });

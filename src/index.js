@@ -14,6 +14,7 @@ import '@fontsource/open-sans/600.css';
 
 import Landing from './routes/Landing';
 import Login from './routes/Login';
+import NotFound from './routes/NotFound';
 
 const theme = createTheme({
   lightColors: {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
