@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 function LandingCategoryCard({ categoryKey, name, imageUrl }) {
@@ -14,5 +15,10 @@ function LandingCategoryCard({ categoryKey, name, imageUrl }) {
     </Link>
   );
 }
+LandingCategoryCard.propTypes = {
+  categoryKey: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  imageUrl: PropTypes.string,
+};
 
 export default LandingCategoryCard;
