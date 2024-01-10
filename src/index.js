@@ -6,6 +6,9 @@ import {
 } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 
+import { store } from './app/store'
+import { Provider } from 'react-redux'
+
 import './index.css';
 import '@fontsource/open-sans/400.css';
 import '@fontsource/open-sans/500.css';
@@ -33,7 +36,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
 
