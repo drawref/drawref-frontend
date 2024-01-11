@@ -1,14 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
+  reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_DRAWREF_API,
   }),
   endpoints: (builder) => ({
     getCategories: builder.query({
-      query: (name) => `categories`,
+      query: () => `categories`,
     }),
   }),
 });
 
-export const { getCategories } = api;
+export const { useGetCategoriesQuery } = api;
