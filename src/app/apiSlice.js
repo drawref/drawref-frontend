@@ -4,7 +4,11 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_DRAWREF_API,
   }),
-  endpoints: (build) => ({
-    // ...
+  endpoints: (builder) => ({
+    getCategories: builder.query({
+      query: (name) => `categories`,
+    }),
   }),
 });
+
+export const { getCategories } = api;

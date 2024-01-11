@@ -7,5 +7,8 @@
     "strings": "on"
   },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": null
+  "editor.defaultFormatter": null,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
