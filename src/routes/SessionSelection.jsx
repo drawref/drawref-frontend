@@ -4,6 +4,7 @@ import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 import { useGetCategoriesQuery } from "../app/apiSlice";
+import SessionCheckboxGroup from "../components/SessionCheckboxGroup";
 
 export async function loader({ params }) {
   const categoryId = params.categoryId;
@@ -15,12 +16,68 @@ function handleSubmit(event) {
   console.log(event);
 }
 
+//TODO: move these elsewhere - these will need to contain lots more detail
+// about specific image lengths to get sessions working.
+const classLengths = [
+  {
+    value: "15m",
+    display: "15 minutes",
+  },
+  {
+    value: "30m",
+    display: "30 minutes",
+  },
+  {
+    value: "45m",
+    display: "45 minutes",
+  },
+  {
+    value: "1h",
+    display: "1 hour",
+  },
+];
+
+//TODO: move these elsewhere, they will need to contain exact durations that
+// we can use to calculate remaining time on the current image.
+const imageIntervals = [
+  {
+    value: "30s",
+    display: "30 seconds",
+  },
+  {
+    value: "1m",
+    display: "1 minute",
+  },
+  {
+    value: "2m",
+    display: "2 minutes",
+  },
+  {
+    value: "5m",
+    display: "5 minutes",
+  },
+  {
+    value: "10m",
+    display: "10 minutes",
+  },
+  {
+    value: "15m",
+    display: "15 minutes",
+  },
+  {
+    value: "30m",
+    display: "30 minutes",
+  },
+  {
+    value: "1h",
+    display: "1 hour",
+  },
+];
+
 function SessionSelection() {
   const { categoryId } = useLoaderData();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
-
-  console.log(category.metadata);
 
   return (
     <>
@@ -31,22 +88,7 @@ function SessionSelection() {
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
           <form className="mb-6 flex flex-col gap-3" onSubmit={handleSubmit}>
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
-              {category.metadata &&
-                Object.keys(category.metadata).map((key) => (
-                  <>
-                    <label className="text-right text-lg font-semibold">{category.metadata[key].name}</label>
-                    <div className="col-span-3 flex gap-1.5">
-                      {category.metadata[key].values.map((name) => (
-                        <div key={name} className="flex items-center gap-1 rounded bg-primary-100 pl-3">
-                          <input type="checkbox" id={`${key}.${name}`} name={`meta.${key}.${name}`} />
-                          <label htmlFor={`${key}.${name}`} className="select-none py-1.5 pr-3 text-sm">
-                            {name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ))}
+              {category.metadata && <SessionCheckboxGroup categoryId={categoryId} metadata={category.metadata} />}
             </div>
 
             <hr className="mx-auto my-4 h-1.5 w-32 rounded border-none bg-slate-300" />
@@ -71,10 +113,11 @@ function SessionSelection() {
                 id="classLength"
                 className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
               >
-                <option value="15m">15 minutes</option>
-                <option value="30m">30 minutes</option>
-                <option value="45m">45 minutes</option>
-                <option value="1h">1 hour</option>
+                {classLengths.map((info) => (
+                  <option key={info.value} value={info.value}>
+                    {info.display}
+                  </option>
+                ))}
               </select>
               <label className="text-right text-lg font-semibold" htmlFor="interval">
                 Interval
@@ -84,15 +127,11 @@ function SessionSelection() {
                 id="interval"
                 className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
               >
-                <option value="30s">30 seconds</option>
-                <option value="1m">1 minute</option>
-                <option value="2m">2 minute</option>
-                <option value="3m">3 minute</option>
-                <option value="5m">5 minute</option>
-                <option value="10m">10 minute</option>
-                <option value="15m">15 minute</option>
-                <option value="30m">30 minute</option>
-                <option value="1h">1 hour</option>
+                {imageIntervals.map((info) => (
+                  <option key={info.value} value={info.value}>
+                    {info.display}
+                  </option>
+                ))}
               </select>
             </div>
 
