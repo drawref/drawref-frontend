@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Icon from "@mdi/react";
 import { mdiStepBackward, mdiStop, mdiPause, mdiStepForward, mdiHeart } from "@mdi/js";
 
@@ -8,6 +8,8 @@ import TheLoadingModal from "../components/TheLoadingModal";
 import { useGetSessionQuery } from "../app/apiSlice";
 
 function Session() {
+  const navigate = useNavigate();
+
   // base session data
   const [searchBarParams, setSearchBarParams] = useSearchParams();
   const categoryId = searchBarParams.get("category") || "";
@@ -41,8 +43,8 @@ function Session() {
               <button type="button" className="py-2 pl-4 pr-1.5">
                 <Icon path={mdiStepBackward} title="Previous image" size={1.2} className="text-white" />
               </button>
-              {/* note, on clicking this button show the 'are you sure' modal, don't just stop the session right away without warning */}
-              <button type="button" className="px-1.5 py-2">
+              {/*TODO: on clicking this button we should show the 'are you sure' modal, don't just stop the session right away without warning */}
+              <button type="button" className="px-1.5 py-2" onClick={() => navigate(`/c/${categoryId}`)}>
                 <Icon path={mdiStop} title="Stop session" size={1.2} className="text-white" />
               </button>
               <button type="button" className="px-1.5 py-2">
