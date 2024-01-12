@@ -9,7 +9,10 @@ export const api = createApi({
     getCategories: builder.query({
       query: () => `categories`,
     }),
+    getSession: builder.query({
+      query: () => `session`,
+    }),
   }),
 });
 
-export const { useGetCategoriesQuery } = api;
+export const { useGetCategoriesQuery, useGetSessionQuery } = api;

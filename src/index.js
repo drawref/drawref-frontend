@@ -12,7 +12,8 @@ import "@fontsource/open-sans/500.css";
 import "@fontsource/open-sans/600.css";
 
 import Landing from "./routes/Landing";
-import SessionSelection, { loader as sessionLoader } from "./routes/SessionSelection";
+import SessionSelection, { loader as sessionSelectionLoader } from "./routes/SessionSelection";
+import Session from "./routes/Session";
 import Login from "./routes/Login";
 import NotFound from "./routes/NotFound";
 
@@ -27,8 +28,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/c/:categoryId",
-    loader: sessionLoader,
+    loader: sessionSelectionLoader,
     element: <SessionSelection />,
+  },
+  {
+    path: "/session",
+    element: <Session />,
   },
   {
     path: "*",

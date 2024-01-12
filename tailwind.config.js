@@ -7,6 +7,7 @@ module.exports = {
         card: "0 3px 7px 2px rgba(7, 30, 54, 0.22)",
       },
       colors: {
+        favouriteActive: "#f695b5",
         primary: {
           50: "#f1f8fd",
           100: "#dfeffa",

@@ -26,13 +26,9 @@ function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSea
     }
   }
 
-  // we put this into the query parameter of the new session
-  const sessionParams = JSON.stringify({
-    metadata,
-  });
-
   navigate(`/session`);
-  searchBarParams.set("params", sessionParams);
+  searchBarParams.set("category", categoryId);
+  searchBarParams.set("metadata", JSON.stringify({ metadata }));
   setSearchBarParams(searchBarParams);
 }
 
