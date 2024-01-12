@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import TheHeader from "../components/TheHeader";
@@ -12,7 +12,7 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(categoryId, rawMetadata, event) {
+function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSearchBarParams, event) {
   event.preventDefault();
 
   // turn metadata objects into a simple [key: array] of chosen values
@@ -26,13 +26,14 @@ function handleSubmit(categoryId, rawMetadata, event) {
     }
   }
 
-  // we'll put this into the # fragment of the url when getting a session
-  console.log(
-    categoryId,
-    JSON.stringify({
-      metadata,
-    }),
-  );
+  // we put this into the query parameter of the new session
+  const sessionParams = JSON.stringify({
+    metadata,
+  });
+
+  navigate(`/session`);
+  searchBarParams.set("params", sessionParams);
+  setSearchBarParams(searchBarParams);
 }
 
 //TODO: move these elsewhere - these will need to contain lots more detail
@@ -53,6 +54,10 @@ const classLengths = [
   {
     value: "1h",
     display: "1 hour",
+  },
+  {
+    value: "2h",
+    display: "2 hours",
   },
 ];
 
@@ -94,6 +99,9 @@ const imageIntervals = [
 ];
 
 function SessionSelection() {
+  const navigate = useNavigate();
+  const [searchBarParams, setSearchBarParams] = useSearchParams();
+
   const { categoryId } = useLoaderData();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
@@ -107,7 +115,10 @@ function SessionSelection() {
         <TheHeader />
         <div id="content" className="bg-white text-center text-defaultText">
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
-          <form className="mb-6 flex flex-col gap-3" onSubmit={handleSubmit.bind(null, categoryId, metadata)}>
+          <form
+            className="mb-6 flex flex-col gap-3"
+            onSubmit={handleSubmit.bind(null, categoryId, metadata, navigate, searchBarParams, setSearchBarParams)}
+          >
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
               {category.metadata && <SessionCheckboxGroup categoryId={categoryId} metadata={category.metadata} />}
             </div>
