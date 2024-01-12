@@ -1,4 +1,5 @@
 import { useLoaderData } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
@@ -11,9 +12,27 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(event) {
+function handleSubmit(categoryId, rawMetadata, event) {
   event.preventDefault();
-  console.log(event);
+
+  // turn metadata objects into a simple [key: array] of chosen values
+  var metadata = {};
+  for (const [key, vals] of Object.entries(rawMetadata)) {
+    const entriesList = Object.entries(vals)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
+    if (entriesList.length > 0) {
+      metadata[key] = entriesList;
+    }
+  }
+
+  // we'll put this into the # fragment of the url when getting a session
+  console.log(
+    categoryId,
+    JSON.stringify({
+      metadata,
+    }),
+  );
 }
 
 //TODO: move these elsewhere - these will need to contain lots more detail
@@ -79,6 +98,8 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
+  const metadata = useSelector((state) => state.sessionMetadata.metadata);
+
   return (
     <>
       {isLoading && <TheLoadingModal />}
@@ -86,7 +107,7 @@ function SessionSelection() {
         <TheHeader />
         <div id="content" className="bg-white text-center text-defaultText">
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
-          <form className="mb-6 flex flex-col gap-3" onSubmit={handleSubmit}>
+          <form className="mb-6 flex flex-col gap-3" onSubmit={handleSubmit.bind(null, categoryId, metadata)}>
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
               {category.metadata && <SessionCheckboxGroup categoryId={categoryId} metadata={category.metadata} />}
             </div>
