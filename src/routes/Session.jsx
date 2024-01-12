@@ -14,7 +14,7 @@ function Session() {
   console.log("details:", categoryId, JSON.stringify(metadata));
 
   const { data: session, isLoading } = useGetSessionQuery();
-  console.log(session[0]);
+  console.log(session);
 
   return (
     <>
