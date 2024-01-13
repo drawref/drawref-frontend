@@ -22,6 +22,7 @@ function Session() {
 
   // working session data
   const [showUi, setShowUi] = useState(true);
+  const [showTime, setShowTime] = useState(true);
 
   return (
     <>
@@ -34,7 +35,11 @@ function Session() {
             onClick={() => setShowUi(!showUi)}
           ></div>
         )}
-        <div className="absolute right-0 top-0 z-40 min-w-24 rounded-bl-3xl bg-primary-900 bg-opacity-95 px-5 py-1.5 text-right text-lg">
+        <div
+          className="absolute right-0 top-0 z-40 min-w-24 select-none rounded-bl-3xl bg-primary-900 bg-opacity-95 px-5 py-1.5 text-right text-lg"
+          style={{ opacity: showTime ? 1 : 0.1 }}
+          onClick={() => setShowTime(!showTime)}
+        >
           00:00
         </div>
         {showUi && (
