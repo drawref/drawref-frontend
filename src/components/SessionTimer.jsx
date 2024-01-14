@@ -7,41 +7,8 @@ function displayTime(seconds) {
   return d.toISOString().slice(d.getUTCHours() > 0 ? 11 : 14, 19);
 }
 
-function startTimer(secondsRemaining, seconds, setSecondsRemaining, setCountdownTimer, onTimeEnded) {
-  let currentSecs = secondsRemaining;
-  const currentTimerInterval = setInterval(() => {
-    setSecondsRemaining(currentSecs - 1);
-    currentSecs = currentSecs - 1;
-    if (currentSecs === 0) {
-      currentSecs = seconds;
-      setSecondsRemaining(seconds);
-      if (onTimeEnded) {
-        onTimeEnded();
-      }
-    }
-  }, 1000);
-  setCountdownTimer(currentTimerInterval);
-  return currentTimerInterval;
-}
-
-function stopTimer(countdownTimer) {
-  clearInterval(countdownTimer);
-}
-
 function sessionTimer({ seconds, onTimeEnded }) {
   const [showTime, setShowTime] = useState(true);
-
-  const [secondsRemaining, setSecondsRemaining] = useState(seconds);
-  const [countdownTimer, setCountdownTimer] = useState(null);
-
-  useEffect(() => {
-    const ct = startTimer(seconds, seconds, setSecondsRemaining, setCountdownTimer, () => {
-      if (onTimeEnded) {
-        onTimeEnded();
-      }
-    });
-    return () => stopTimer(ct);
-  }, []);
 
   return (
     <div
@@ -49,13 +16,12 @@ function sessionTimer({ seconds, onTimeEnded }) {
       style={{ opacity: showTime ? 1 : 0.1 }}
       onClick={() => setShowTime(!showTime)}
     >
-      {displayTime(secondsRemaining)}
+      {displayTime(seconds)}
     </div>
   );
 }
 sessionTimer.propTypes = {
   seconds: PropTypes.number.isRequired,
-  onTimeEnded: PropTypes.func,
 };
 
 export default sessionTimer;

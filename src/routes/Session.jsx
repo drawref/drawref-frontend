@@ -1,26 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Icon from "@mdi/react";
-import { mdiStepBackward, mdiStop, mdiPause, mdiStepForward, mdiHeart } from "@mdi/js";
+import { mdiStepBackward, mdiStop, mdiPause, mdiPlay, mdiStepForward, mdiHeart } from "@mdi/js";
 
 import TheLoadingModal from "../components/TheLoadingModal";
 import SessionTimer from "../components/SessionTimer";
 
 import { useGetSessionQuery } from "../app/apiSlice";
+import { useTimer } from "../app/useTimer";
 
 function Session() {
   const navigate = useNavigate();
   const [showUi, setShowUi] = useState(true);
+
+  // for showing the next image from timer actions
+  const nextButtonRef = useRef(null);
+
+  // data for API call
+  const [searchBarParams, setSearchBarParams] = useSearchParams();
+  const categoryId = searchBarParams.get("category") || "";
+  const metadata = JSON.parse(searchBarParams.get("metadata") || "{}");
 
   // working session data
   const [onApiImages, setOnApiImages] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
   const [historyImages, setHistoryImages] = useState([]);
 
-  // data for API call
-  const [searchBarParams, setSearchBarParams] = useSearchParams();
-  const categoryId = searchBarParams.get("category") || "";
-  const metadata = JSON.parse(searchBarParams.get("metadata") || "{}");
+  // timer data
+  const [timerRunning, setTimerRunning] = useState(true);
+  const { secondsRemaining } = useTimer([60 * 5], timerRunning, (atEndOfTime) => {
+    nextButtonRef.current.click();
+  });
 
   // session API info
   const { data: session, isLoading, refetch } = useGetSessionQuery();
@@ -32,12 +42,6 @@ function Session() {
   // get current image path from session, or from history
   const currentImagePath = onApiImages ? (session ? session[currentImage].path : "") : historyImages[currentImage].path;
 
-  // for showing the next image from timer actions
-  const nextButtonRef = useRef(null);
-  const showNextImage = () => {
-    nextButtonRef.current.click();
-  };
-
   return (
     <>
       {isLoading && <TheLoadingModal />}
@@ -47,7 +51,7 @@ function Session() {
           style={{ backgroundImage: `url(${currentImagePath})` }}
           onClick={() => setShowUi(!showUi)}
         ></div>
-        <SessionTimer seconds={60 * 5} onTimeEnded={() => showNextImage()} />
+        <SessionTimer seconds={secondsRemaining} />
         {showUi && (
           <div className="absolute bottom-0 left-0 z-40 flex w-screen justify-center">
             <div className="flex min-h-8 min-w-20 justify-center rounded-t-3xl bg-primary-900 bg-opacity-95 px-2">
@@ -74,8 +78,9 @@ function Session() {
                 <Icon path={mdiStop} title="Stop session" size={1.2} className="text-white" />
               </button>
               {/* Note, need to re-architect the timer to implement this. have parent own the data, component take seconds and blindly render it */}
-              <button type="button" className="px-1.5 py-2">
-                <Icon path={mdiPause} title="Pause session" size={1.2} className="text-white" />
+              <button type="button" className="px-1.5 py-2" onClick={() => setTimerRunning(!timerRunning)}>
+                {timerRunning && <Icon path={mdiPause} title="Pause session" size={1.2} className="text-white" />}
+                {!timerRunning && <Icon path={mdiPlay} title="Resume session" size={1.2} className="text-white" />}
               </button>
               <button
                 type="button"
