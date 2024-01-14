@@ -1,6 +1,8 @@
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+import { classLengths, imageIntervals } from "../app/sessionTimes";
+
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
@@ -31,68 +33,6 @@ function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSea
   searchBarParams.set("metadata", JSON.stringify({ metadata }));
   setSearchBarParams(searchBarParams);
 }
-
-//TODO: move these elsewhere - these will need to contain lots more detail
-// about specific image lengths to get sessions working.
-const classLengths = [
-  {
-    value: "15m",
-    display: "15 minutes",
-  },
-  {
-    value: "30m",
-    display: "30 minutes",
-  },
-  {
-    value: "45m",
-    display: "45 minutes",
-  },
-  {
-    value: "1h",
-    display: "1 hour",
-  },
-  {
-    value: "2h",
-    display: "2 hours",
-  },
-];
-
-//TODO: move these elsewhere, they will need to contain exact durations that
-// we can use to calculate remaining time on the current image.
-const imageIntervals = [
-  {
-    value: "30s",
-    display: "30 seconds",
-  },
-  {
-    value: "1m",
-    display: "1 minute",
-  },
-  {
-    value: "2m",
-    display: "2 minutes",
-  },
-  {
-    value: "5m",
-    display: "5 minutes",
-  },
-  {
-    value: "10m",
-    display: "10 minutes",
-  },
-  {
-    value: "15m",
-    display: "15 minutes",
-  },
-  {
-    value: "30m",
-    display: "30 minutes",
-  },
-  {
-    value: "1h",
-    display: "1 hour",
-  },
-];
 
 function SessionSelection() {
   const navigate = useNavigate();
