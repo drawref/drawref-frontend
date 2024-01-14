@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -35,6 +36,8 @@ function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSea
 }
 
 function SessionSelection() {
+  const [timingType, setTimingType] = useState("static");
+
   const navigate = useNavigate();
   const [searchBarParams, setSearchBarParams] = useSearchParams();
 
@@ -69,38 +72,48 @@ function SessionSelection() {
                 name="timing"
                 id="timing"
                 className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                value={timingType}
+                onChange={(e) => setTimingType(e.target.value)}
               >
                 <option value="class">Class mode</option>
                 <option value="static">Static</option>
               </select>
-              <label className="text-right text-lg font-semibold" htmlFor="classLength">
-                Class length
-              </label>
-              <select
-                name="classLength"
-                id="classLength"
-                className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
-              >
-                {classLengths.map((info) => (
-                  <option key={info.value} value={info.value}>
-                    {info.display}
-                  </option>
-                ))}
-              </select>
-              <label className="text-right text-lg font-semibold" htmlFor="interval">
-                Interval
-              </label>
-              <select
-                name="interval"
-                id="interval"
-                className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
-              >
-                {imageIntervals.map((info) => (
-                  <option key={info.value} value={info.value}>
-                    {info.display}
-                  </option>
-                ))}
-              </select>
+              {timingType === "class" && (
+                <>
+                  <label className="text-right text-lg font-semibold" htmlFor="classLength">
+                    Class length
+                  </label>
+                  <select
+                    name="classLength"
+                    id="classLength"
+                    className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                  >
+                    {classLengths.map((info) => (
+                      <option key={info.value} value={info.value}>
+                        {info.display}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+              {timingType === "static" && (
+                <>
+                  <label className="text-right text-lg font-semibold" htmlFor="interval">
+                    Interval
+                  </label>
+                  <select
+                    name="interval"
+                    id="interval"
+                    className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                  >
+                    {imageIntervals.map((info) => (
+                      <option key={info.value} value={info.value}>
+                        {info.display}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
             </div>
 
             <button
