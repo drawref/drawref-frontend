@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { classLengths, imageIntervals } from "../app/sessionTimes";
+import { classLengths, staticImageTimes } from "../app/sessionTimes";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
@@ -15,7 +15,7 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSearchBarParams, event) {
+function handleSubmit(categoryId, rawMetadata, timing, navigate, searchBarParams, setSearchBarParams, event) {
   event.preventDefault();
 
   // turn metadata objects into a simple [key: array] of chosen values
@@ -31,12 +31,15 @@ function handleSubmit(categoryId, rawMetadata, navigate, searchBarParams, setSea
 
   navigate(`/session`);
   searchBarParams.set("category", categoryId);
-  searchBarParams.set("metadata", JSON.stringify({ metadata }));
+  searchBarParams.set("metadata", JSON.stringify(metadata));
+  searchBarParams.set("timing", JSON.stringify(timing));
   setSearchBarParams(searchBarParams);
 }
 
 function SessionSelection() {
   const [timingType, setTimingType] = useState("static");
+  const [staticTime, setStaticTime] = useState("5m");
+  const [classLength, setClassLength] = useState("15m");
 
   const navigate = useNavigate();
   const [searchBarParams, setSearchBarParams] = useSearchParams();
@@ -46,6 +49,11 @@ function SessionSelection() {
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
   const metadata = useSelector((state) => state.sessionMetadata.metadata);
+  const timing = {
+    timingType,
+    staticTime,
+    classLength,
+  };
 
   return (
     <>
@@ -56,7 +64,15 @@ function SessionSelection() {
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
           <form
             className="mb-6 flex flex-col gap-3"
-            onSubmit={handleSubmit.bind(null, categoryId, metadata, navigate, searchBarParams, setSearchBarParams)}
+            onSubmit={handleSubmit.bind(
+              null,
+              categoryId,
+              metadata,
+              timing,
+              navigate,
+              searchBarParams,
+              setSearchBarParams,
+            )}
           >
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
               {category.metadata && <SessionCheckboxGroup categoryId={categoryId} metadata={category.metadata} />}
@@ -87,6 +103,8 @@ function SessionSelection() {
                     name="classLength"
                     id="classLength"
                     className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                    value={classLength}
+                    onChange={(e) => setClassLength(e.target.value)}
                   >
                     {classLengths.map((info) => (
                       <option key={info.value} value={info.value}>
@@ -105,8 +123,10 @@ function SessionSelection() {
                     name="interval"
                     id="interval"
                     className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                    value={staticTime}
+                    onChange={(e) => setStaticTime(e.target.value)}
                   >
-                    {imageIntervals.map((info) => (
+                    {staticImageTimes.map((info) => (
                       <option key={info.value} value={info.value}>
                         {info.display}
                       </option>

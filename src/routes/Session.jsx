@@ -7,19 +7,17 @@ import TheLoadingModal from "../components/TheLoadingModal";
 import SessionTimer from "../components/SessionTimer";
 
 import { useGetSessionQuery } from "../app/apiSlice";
+import { staticImageTimes, classLengths } from "../app/sessionTimes";
 import { useTimer } from "../app/useTimer";
 
 function Session() {
   const navigate = useNavigate();
+  const [searchBarParams, setSearchBarParams] = useSearchParams();
   const [showUi, setShowUi] = useState(true);
 
-  // for showing the next image from timer actions
+  // clicking buttons from timer actions
+  const stopButtonRef = useRef(null);
   const nextButtonRef = useRef(null);
-
-  // data for API call
-  const [searchBarParams, setSearchBarParams] = useSearchParams();
-  const categoryId = searchBarParams.get("category") || "";
-  const metadata = JSON.parse(searchBarParams.get("metadata") || "{}");
 
   // working session data
   const [onApiImages, setOnApiImages] = useState(true);
@@ -28,12 +26,28 @@ function Session() {
 
   // timer data
   const [timerRunning, setTimerRunning] = useState(true);
-  const { secondsRemaining } = useTimer([60 * 5], timerRunning, (atEndOfTime) => {
-    nextButtonRef.current.click();
+  const timing = JSON.parse(searchBarParams.get("timing") || "{}");
+  var defaultSecondsList = [];
+  // the [].concat() stops useTimer from modifying the base lists
+  if (timing.timingType === "static") {
+    defaultSecondsList = [].concat([staticImageTimes.filter((info) => info.value === timing.staticTime)[0].seconds]);
+  } else {
+    defaultSecondsList = [].concat(classLengths.filter((info) => info.value === timing.classLength)[0].intervals);
+  }
+  const { secondsRemaining } = useTimer(defaultSecondsList, timerRunning, (atEndOfTime) => {
+    console.log("is:", atEndOfTime, timing.timingType);
+    if (atEndOfTime && timing.timingType === "class") {
+      stopButtonRef.current.click();
+    } else {
+      nextButtonRef.current.click();
+    }
   });
 
   // session API info
-  const { data: session, isLoading, refetch } = useGetSessionQuery();
+  const categoryId = searchBarParams.get("category") || "";
+  const metadata = JSON.parse(searchBarParams.get("metadata") || "{}");
+
+  const { data: session, isLoading, refetch } = useGetSessionQuery({ categoryId, metadata });
   useEffect(() => {
     // grab brand new set of images when loading into a fresh session
     refetch();
@@ -74,7 +88,12 @@ function Session() {
                 <Icon path={mdiStepBackward} title="Previous image" size={1.2} className="text-white" />
               </button>
               {/*TODO: on clicking this button we should show the 'are you sure' modal, don't just stop the session right away without warning */}
-              <button type="button" className="px-1.5 py-2" onClick={() => navigate(`/c/${categoryId}`)}>
+              <button
+                type="button"
+                className="px-1.5 py-2"
+                onClick={() => navigate(`/c/${categoryId}`)}
+                ref={stopButtonRef}
+              >
                 <Icon path={mdiStop} title="Stop session" size={1.2} className="text-white" />
               </button>
               {/* Note, need to re-architect the timer to implement this. have parent own the data, component take seconds and blindly render it */}

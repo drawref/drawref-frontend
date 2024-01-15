@@ -1,7 +1,7 @@
 // timing methods, lengths, etc
 
 // static image intervals
-export const imageIntervals = [
+export const staticImageTimes = [
   {
     value: "30s",
     display: "30 seconds",

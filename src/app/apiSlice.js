@@ -10,7 +10,14 @@ export const api = createApi({
       query: () => `categories`,
     }),
     getSession: builder.query({
-      query: () => `session`,
+      query: ({ categoryId, metadata }) => ({
+        url: `session`,
+        method: "GET",
+        params: {
+          category: categoryId,
+          metadata: JSON.stringify(metadata),
+        },
+      }),
     }),
   }),
 });
