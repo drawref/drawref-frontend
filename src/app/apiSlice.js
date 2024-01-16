@@ -19,7 +19,16 @@ export const api = createApi({
         },
       }),
     }),
+    getUser: builder.query({
+      query: ({ token }) => ({
+        url: `user`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useGetCategoriesQuery, useGetSessionQuery } = api;
+export const { useGetCategoriesQuery, useGetSessionQuery, useGetUserQuery } = api;

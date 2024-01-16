@@ -12,9 +12,11 @@ import "@fontsource/open-sans/500.css";
 import "@fontsource/open-sans/600.css";
 
 import Landing from "./routes/Landing";
+import Dashboard from "./routes/Dashboard";
 import SessionSelection, { loader as sessionSelectionLoader } from "./routes/SessionSelection";
 import Session from "./routes/Session";
 import Login from "./routes/Login";
+import LoginSuccess from "./routes/LoginSuccess";
 import NotFound from "./routes/NotFound";
 
 const router = createBrowserRouter([
@@ -23,8 +25,16 @@ const router = createBrowserRouter([
     element: <Landing />,
   },
   {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/login/success",
+    element: <LoginSuccess />,
   },
   {
     path: "/c/:categoryId",

@@ -3,11 +3,13 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { api } from "./apiSlice";
 import { sessionMetadataSlice } from "./sessionMetadataSlice";
+import { userProfileSlice } from "./userProfileSlice";
 
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
     sessionMetadata: sessionMetadataSlice.reducer,
+    userProfile: userProfileSlice.reducer,
   },
 
   // Adding the api middleware enables caching, invalidation, polling,

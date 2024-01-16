@@ -35,6 +35,7 @@ module.exports = {
           950: "#500715",
         },
         defaultText: "#0d2748",
+        linkText: "#2492b5",
       },
     },
   },
