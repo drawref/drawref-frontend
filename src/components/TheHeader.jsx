@@ -18,7 +18,7 @@ function TheHeader() {
         </Link>
         <div className="flex">
           {user.loggedIn && (
-            <Link to="/dashboard" className="px-2 py-2 text-white">
+            <Link to={user.admin ? "/dashboards" : "/dashboard"} className="px-2 py-2 text-white">
               <Icon path={mdiAccountCircle} title="Dashboard" size={1.2} className="text-white" />
             </Link>
           )}
