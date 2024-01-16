@@ -13,6 +13,7 @@ import "@fontsource/open-sans/600.css";
 
 import Landing from "./routes/Landing";
 import AdminDashboard from "./routes/AdminDashboard";
+import UserDashboard from "./routes/UserDashboard";
 import DashboardLinks from "./routes/DashboardLinks";
 import SessionSelection, { loader as sessionSelectionLoader } from "./routes/SessionSelection";
 import Session from "./routes/Session";
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: <AdminDashboard />,
+  },
+  {
+    path: "/dashboard",
+    element: <UserDashboard />,
   },
   {
     path: "/dashboards",
