@@ -2,17 +2,17 @@ import { Fragment } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 
-import { changeMetadata } from "../app/sessionMetadataSlice";
+import { changeTags } from "../app/sessionTagsSlice";
 
-function SessionCheckboxGroup({ categoryId, metadata }) {
-  const data = useSelector((state) => state.sessionMetadata);
+function SessionCheckboxGroup({ categoryId, tags }) {
+  const data = useSelector((state) => state.sessionTags);
   const dispatch = useDispatch();
 
-  return Object.keys(metadata).map((key) => (
+  return Object.keys(tags).map((key) => (
     <Fragment key={key}>
-      <label className="text-right text-lg font-semibold">{metadata[key].name}</label>
+      <label className="text-right text-lg font-semibold">{tags[key].name}</label>
       <div className="col-span-3 flex gap-1.5">
-        {metadata[key].values.map((name) => (
+        {tags[key].values.map((name) => (
           <div key={name} className="flex items-center gap-1 rounded bg-primary-100 pl-3">
             <input
               type="checkbox"
@@ -21,7 +21,7 @@ function SessionCheckboxGroup({ categoryId, metadata }) {
               checked={data[key] && data[key][name]}
               onChange={(e) =>
                 dispatch(
-                  changeMetadata({
+                  changeTags({
                     key: key,
                     name: name,
                     value: e.target.checked,
@@ -40,7 +40,7 @@ function SessionCheckboxGroup({ categoryId, metadata }) {
 }
 SessionCheckboxGroup.propTypes = {
   categoryId: PropTypes.string.isRequired,
-  metadata: PropTypes.object.isRequired,
+  tags: PropTypes.object.isRequired,
 };
 
 export default SessionCheckboxGroup;

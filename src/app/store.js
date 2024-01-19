@@ -2,7 +2,7 @@ import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { api } from "./apiSlice";
-import { sessionMetadataSlice } from "./sessionMetadataSlice";
+import { sessionTagsSlice } from "./sessionTagsSlice";
 import { userProfileSlice, login, logout } from "./userProfileSlice";
 
 // listener middleware, used to send store data to local storage
@@ -23,7 +23,7 @@ listenerMiddleware.startListening({
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
-    sessionMetadata: sessionMetadataSlice.reducer,
+    sessionTags: sessionTagsSlice.reducer,
     userProfile: userProfileSlice.reducer,
   },
 

@@ -5,21 +5,31 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_DRAWREF_API,
   }),
-  endpoints: (builder) => ({
-    getCategories: builder.query({
-      query: () => `categories`,
+  tagTypes: ["categories"],
+  endpoints: (build) => ({
+    addCategory: build.mutation({
+      query: (body) => ({
+        url: `categories`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["categories"],
     }),
-    getSession: builder.query({
-      query: ({ categoryId, metadata }) => ({
+    getCategories: build.query({
+      query: () => `categories`,
+      providesTags: ["categories"],
+    }),
+    getSession: build.query({
+      query: ({ categoryId, tags }) => ({
         url: `session`,
         method: "GET",
         params: {
           category: categoryId,
-          metadata: JSON.stringify(metadata),
+          tags: JSON.stringify(tags),
         },
       }),
     }),
-    getUser: builder.query({
+    getUser: build.query({
       query: ({ token }) => ({
         url: `user`,
         method: "GET",
@@ -31,4 +41,4 @@ export const api = createApi({
   }),
 });
 
-export const { useGetCategoriesQuery, useGetSessionQuery, useGetUserQuery } = api;
+export const { useAddCategoryMutation, useGetCategoriesQuery, useGetSessionQuery, useGetUserQuery } = api;

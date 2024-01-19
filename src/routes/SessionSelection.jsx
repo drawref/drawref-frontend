@@ -15,23 +15,23 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(categoryId, rawMetadata, timing, navigate, searchBarParams, setSearchBarParams, event) {
+function handleSubmit(categoryId, rawTags, timing, navigate, searchBarParams, setSearchBarParams, event) {
   event.preventDefault();
 
-  // turn metadata objects into a simple [key: array] of chosen values
-  var metadata = {};
-  for (const [key, vals] of Object.entries(rawMetadata)) {
+  // turn tag objects into a simple [key: array] of chosen values
+  var tags = {};
+  for (const [key, vals] of Object.entries(rawTags)) {
     const entriesList = Object.entries(vals)
       .filter(([_, v]) => v)
       .map(([k]) => k);
     if (entriesList.length > 0) {
-      metadata[key] = entriesList;
+      tags[key] = entriesList;
     }
   }
 
   navigate(`/session`);
   searchBarParams.set("category", categoryId);
-  searchBarParams.set("metadata", JSON.stringify(metadata));
+  searchBarParams.set("tags", JSON.stringify(tags));
   searchBarParams.set("timing", JSON.stringify(timing));
   setSearchBarParams(searchBarParams);
 }
@@ -48,7 +48,7 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
-  const metadata = useSelector((state) => state.sessionMetadata.metadata);
+  const tags = useSelector((state) => state.sessionTags.tags);
   const timing = {
     timingType,
     staticTime,
@@ -64,18 +64,10 @@ function SessionSelection() {
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
           <form
             className="mb-6 flex flex-col gap-3"
-            onSubmit={handleSubmit.bind(
-              null,
-              categoryId,
-              metadata,
-              timing,
-              navigate,
-              searchBarParams,
-              setSearchBarParams,
-            )}
+            onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate, searchBarParams, setSearchBarParams)}
           >
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
-              {category.metadata && <SessionCheckboxGroup categoryId={categoryId} metadata={category.metadata} />}
+              {category.tags && <SessionCheckboxGroup categoryId={categoryId} tags={category.tags} />}
             </div>
 
             <hr className="mx-auto my-4 h-1.5 w-32 rounded border-none bg-slate-300" />

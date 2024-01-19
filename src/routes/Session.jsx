@@ -45,9 +45,9 @@ function Session() {
 
   // session API info
   const categoryId = searchBarParams.get("category") || "";
-  const metadata = JSON.parse(searchBarParams.get("metadata") || "{}");
+  const tags = JSON.parse(searchBarParams.get("tags") || "{}");
 
-  const { data: session, isLoading, refetch } = useGetSessionQuery({ categoryId, metadata });
+  const { data: session, isLoading, refetch } = useGetSessionQuery({ categoryId, tags });
   useEffect(() => {
     // grab brand new set of images when loading into a fresh session
     refetch();
