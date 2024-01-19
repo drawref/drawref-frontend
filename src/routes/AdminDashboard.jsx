@@ -1,17 +1,36 @@
-import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
+import TheLoadingModal from "../components/TheLoadingModal";
+
+import { useGetCategoriesQuery } from "../app/apiSlice";
 
 function AdminDashboard() {
-  const user = useSelector((state) => state.userProfile);
+  const { data: categories, isLoading } = useGetCategoriesQuery();
 
   return (
     <>
-      <div className="App bg-white">
-        <TheHeader />
-        <div id="content" className="bg-white text-center text-defaultText">
-          {user.admin && <span>Test</span>}
+      {isLoading && <TheLoadingModal />}
+      <div className="App dark bg-primary-950">
+        <TheHeader admin="true" />
+        <div id="content" className="bg-primary-950 text-center text-white">
+          <h1 className="mb-3 mt-10 text-2xl font-semibold">Categories</h1>
+          <div className="mx-auto flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
+            {categories &&
+              categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/admin/c/${cat.id}`}
+                  className="block py-2 text-xl font-medium hover:bg-primary-800"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            <Link to="/admin/c" className="block py-3 hover:bg-primary-800">
+              Create new
+            </Link>
+          </div>
         </div>
         <TheFooter />
       </div>

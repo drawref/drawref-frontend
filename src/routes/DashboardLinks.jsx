@@ -19,14 +19,9 @@ function DashboardLinks() {
                 Admin Dashboard
               </Link>
             )}
-            {user.loggedIn && (
-              <Link
-                to={`/dashboard`}
-                className="rounded-lg bg-secondary-600 p-2 text-lg font-semibold text-white shadow"
-              >
-                Dashboard
-              </Link>
-            )}
+            <Link to={`/dashboard`} className="rounded-lg bg-secondary-600 p-2 text-lg font-semibold text-white shadow">
+              Dashboard
+            </Link>
           </div>
         </div>
         <TheFooter />

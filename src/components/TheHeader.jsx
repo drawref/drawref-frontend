@@ -1,20 +1,23 @@
-import logo from "../assets/logo-light.svg";
 import Icon from "@mdi/react";
 import { mdiLoginVariant, mdiAccountCircle } from "@mdi/js";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
-function TheHeader() {
+import logo from "../assets/logo-light.svg";
+
+function TheHeader({ admin }) {
   const user = useSelector((state) => state.userProfile);
 
   return (
     <>
-      <header className="sticky top-0 flex items-center justify-between bg-primary-600 px-2 py-1">
+      <header className="sticky top-0 flex items-center justify-between bg-primary-600 px-2 py-1 dark:bg-primary-800">
         <Link to="/login" className="invisible px-2 py-2 text-white sm:hidden">
           <Icon path={mdiLoginVariant} title="Login" size={1.1} className="text-white" />
         </Link>
-        <Link to="/" className="block px-3 py-1.5">
+        <Link to="/" className="flex items-center gap-3 px-3 py-1.5">
           <img src={logo} alt="DrawRef logo" />
+          {admin && <span className="-mb-2 hidden text-lg font-medium text-white sm:block">Admin Dashboard</span>}
         </Link>
         <div className="flex">
           {user.loggedIn && (
@@ -37,5 +40,8 @@ function TheHeader() {
     </>
   );
 }
+TheHeader.propTypes = {
+  admin: PropTypes.bool,
+};
 
 export default TheHeader;

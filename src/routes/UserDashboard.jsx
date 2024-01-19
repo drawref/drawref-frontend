@@ -15,11 +15,7 @@ function UserDashboard() {
       <div className="App bg-white">
         <TheHeader />
         <div id="content" className="bg-white text-center text-defaultText">
-          {user.loggedIn && (
-            <>
-              <button onClick={() => dispatch(logout())}>Logout</button>
-            </>
-          )}
+          <button onClick={() => dispatch(logout())}>Logout</button>
         </div>
         <TheFooter />
       </div>

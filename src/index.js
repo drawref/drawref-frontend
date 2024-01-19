@@ -11,6 +11,8 @@ import "@fontsource/open-sans/400.css";
 import "@fontsource/open-sans/500.css";
 import "@fontsource/open-sans/600.css";
 
+import AuthenticatedRoot from "./routes/AuthenticatedRoot";
+import AdminRoot from "./routes/AdminRoot";
 import Landing from "./routes/Landing";
 import AdminDashboard from "./routes/AdminDashboard";
 import UserDashboard from "./routes/UserDashboard";
@@ -23,28 +25,30 @@ import NotFound from "./routes/NotFound";
 
 const router = createBrowserRouter([
   {
+    element: <AuthenticatedRoot />,
+    children: [
+      {
+        path: "/dashboards",
+        element: <DashboardLinks />,
+      },
+      {
+        path: "/dashboard",
+        element: <UserDashboard />,
+      },
+    ],
+  },
+  {
+    element: <AdminRoot />,
+    children: [
+      {
+        path: "/admin",
+        element: <AdminDashboard />,
+      },
+    ],
+  },
+  {
     path: "/",
     element: <Landing />,
-  },
-  {
-    path: "/admin",
-    element: <AdminDashboard />,
-  },
-  {
-    path: "/dashboard",
-    element: <UserDashboard />,
-  },
-  {
-    path: "/dashboards",
-    element: <DashboardLinks />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/login/success",
-    element: <LoginSuccess />,
   },
   {
     path: "/c/:categoryId",
@@ -54,6 +58,14 @@ const router = createBrowserRouter([
   {
     path: "/session",
     element: <Session />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/login/success",
+    element: <LoginSuccess />,
   },
   {
     path: "*",
