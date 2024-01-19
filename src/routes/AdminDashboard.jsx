@@ -27,7 +27,7 @@ function AdminDashboard() {
                   {cat.name}
                 </Link>
               ))}
-            <Link to="/admin/c" className="block py-3 hover:bg-primary-800">
+            <Link to="/admin/create-category" className="block py-3 hover:bg-primary-800">
               Create new
             </Link>
           </div>
