@@ -87,9 +87,9 @@ function AdminCreateCategory() {
         <TheHeader admin={true} />
         <div id="content" className="bg-primary-950 text-center text-white">
           <h1 className="mb-6 mt-10 text-3xl font-semibold">Create Category</h1>
-          <div className="mx-4 flex">
+          <div className="mx-4 flex max-w-full items-end">
             <form
-              className="mx-auto mb-8 flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
+              className="mx-auto mb-8 box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
               onSubmit={async (e) => {
                 e.preventDefault();
 
@@ -141,19 +141,19 @@ function AdminCreateCategory() {
               }}
             >
               <h2 className="text-xl font-medium">Information</h2>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
                 <label htmlFor="coverImage" className="text-lg font-medium">
                   Cover
                 </label>
                 <input type="file" id="coverImage" ref={coverRef}></input>
               </div>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
                 <label htmlFor="name" className="text-lg font-medium">
                   Name
                 </label>
                 <input
                   id="name"
-                  className="rounded px-2 py-1 text-defaultText"
+                  className="max-w-full rounded px-2 py-1 text-defaultText"
                   value={categoryName}
                   onChange={(e) => {
                     setCategoryName(e.target.value);
@@ -171,7 +171,7 @@ function AdminCreateCategory() {
                 value={tagsList}
                 onChange={(e) => setTagsList(e.target.value)}
               ></textarea>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
                 <label htmlFor="tagTemplate" className="text-lg font-medium">
                   Use template
                 </label>
