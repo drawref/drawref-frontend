@@ -11,7 +11,7 @@ function SessionCheckboxGroup({ categoryId, tags }) {
   return Object.keys(tags).map((key) => (
     <Fragment key={key}>
       <label className="text-right text-lg font-semibold">{tags[key].name}</label>
-      <div className="col-span-3 flex gap-1.5">
+      <div className="col-span-3 flex flex-wrap gap-1.5">
         {tags[key].values.map((name) => (
           <div key={name} className="flex items-center gap-1 rounded bg-primary-100 pl-3">
             <input
@@ -40,7 +40,7 @@ function SessionCheckboxGroup({ categoryId, tags }) {
 }
 SessionCheckboxGroup.propTypes = {
   categoryId: PropTypes.string.isRequired,
-  tags: PropTypes.object.isRequired,
+  tags: PropTypes.array.isRequired,
 };
 
 export default SessionCheckboxGroup;

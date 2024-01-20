@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import TheHeader from "../components/TheHeader";
@@ -6,7 +7,8 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 
 import { categoryTags } from "../app/tagTemplates";
-import { useAddCategoryMutation } from "../app/apiSlice";
+import { useAddCategoryMutation, useAddImageMutation } from "../app/apiSlice";
+import { upload, useUploadImageMutation } from "../app/uploadSlice";
 import slugify from "slugify";
 
 function parseTags(tagsList) {
@@ -40,12 +42,22 @@ function parseTags(tagsList) {
 }
 
 function AdminCreateCategory() {
-  const [addCategory, { isLoading: isUpdating, error }] = useAddCategoryMutation();
+  const user = useSelector((state) => state.userProfile);
+
+  const [addCategory, { isLoading: isUpdating, error: categoryError }] = useAddCategoryMutation();
+  const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
+  const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
   const navigate = useNavigate();
+
+  const errorToShow = [categoryError, addImageError, uploadImageError]
+    .filter((e) => e && e.data)
+    .map((e) => e.data.error)
+    .join(" ");
 
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [tagsList, setTagsList] = useState("");
+  const coverRef = useRef(null);
 
   function applyTagTemplate(key) {
     const value = categoryTags.filter((info) => info.name === key)[0];
@@ -70,7 +82,7 @@ function AdminCreateCategory() {
 
   return (
     <>
-      {isUpdating && <TheLoadingModal />}
+      {(isUpdating || isUploadingImage || isAddingImage) && <TheLoadingModal />}
       <div className="App dark bg-primary-950">
         <TheHeader admin={true} />
         <div id="content" className="bg-primary-950 text-center text-white">
@@ -80,15 +92,46 @@ function AdminCreateCategory() {
               className="mx-auto mb-8 flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
               onSubmit={async (e) => {
                 e.preventDefault();
+
+                // uploading category cover image
+                var coverImageId = -1;
+                if (coverRef.current.files.length > 0) {
+                  try {
+                    const data = new FormData();
+                    data.append("image", coverRef.current.files[0]);
+                    const uploadResult = await uploadImage({ token: user.token, body: data }).unwrap();
+
+                    if (uploadResult.path) {
+                      // add image
+                      const addResult = await addImage({
+                        token: user.token,
+                        body: {
+                          path: uploadResult.path,
+                          author: "",
+                        },
+                      });
+
+                      coverImageId = addResult.data.id;
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    return;
+                  }
+                }
+
                 const tags = parseTags(tagsList);
                 const body = {
                   id: categoryId,
                   name: categoryName,
                   tags,
                 };
+                if (coverImageId !== -1) {
+                  body.cover = coverImageId;
+                }
+
                 if (categoryId.trim() !== "" && categoryName.trim() !== "") {
                   try {
-                    const result = await addCategory(body).unwrap();
+                    const result = await addCategory({ token: user.token, body }).unwrap();
                     // created successfully, move to the new category edit page
                     navigate(`/admin/c/${result.id}`);
                   } catch (err) {
@@ -98,12 +141,11 @@ function AdminCreateCategory() {
               }}
             >
               <h2 className="text-xl font-medium">Information</h2>
-              {/* note, unhide cover once implemented */}
-              <div className="flex items-center justify-center gap-3 dark:hidden">
+              <div className="flex items-center justify-center gap-3">
                 <label htmlFor="coverImage" className="text-lg font-medium">
                   Cover
                 </label>
-                <input type="file" id="coverImage"></input>
+                <input type="file" id="coverImage" ref={coverRef}></input>
               </div>
               <div className="flex items-center justify-center gap-3">
                 <label htmlFor="name" className="text-lg font-medium">
@@ -147,10 +189,8 @@ function AdminCreateCategory() {
                 </select>
               </div>
 
-              {error && error.data && (
-                <span className="mx-auto -mb-5 mt-3 w-auto bg-red-600 px-3 py-1 text-sm">
-                  Error: {error.data.error}
-                </span>
+              {errorToShow && (
+                <span className="mx-auto -mb-5 mt-3 w-auto bg-red-600 px-3 py-1 text-sm">Error: {errorToShow}</span>
               )}
 
               <button

@@ -20,6 +20,7 @@ function Landing() {
               categories.map((cat) => (
                 <LandingCategoryCard key={cat.id} categoryKey={cat.id} name={cat.name} imageUrl={cat.cover} />
               ))}
+            {categories && categories.length === 0 && <span>No categories exist, login to add one!</span>}
           </div>
         </div>
         <TheFooter />

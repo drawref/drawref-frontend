@@ -7,10 +7,15 @@ export const api = createApi({
   }),
   tagTypes: ["categories"],
   endpoints: (build) => ({
+    // categories
+    //
     addCategory: build.mutation({
-      query: (body) => ({
+      query: ({ token, body }) => ({
         url: `categories`,
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body,
       }),
       invalidatesTags: ["categories"],
@@ -19,6 +24,22 @@ export const api = createApi({
       query: () => `categories`,
       providesTags: ["categories"],
     }),
+
+    // images
+    //
+    addImage: build.mutation({
+      query: ({ token, body }) => ({
+        url: `image`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+    }),
+
+    // sessions
+    //
     getSession: build.query({
       query: ({ categoryId, tags }) => ({
         url: `session`,
@@ -29,6 +50,9 @@ export const api = createApi({
         },
       }),
     }),
+
+    // user data
+    //
     getUser: build.query({
       query: ({ token }) => ({
         url: `user`,
@@ -41,4 +65,10 @@ export const api = createApi({
   }),
 });
 
-export const { useAddCategoryMutation, useGetCategoriesQuery, useGetSessionQuery, useGetUserQuery } = api;
+export const {
+  useAddCategoryMutation,
+  useGetCategoriesQuery,
+  useAddImageMutation,
+  useGetSessionQuery,
+  useGetUserQuery,
+} = api;
