@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
@@ -39,7 +40,8 @@ function parseTags(tagsList) {
 }
 
 function AdminCreateCategory() {
-  const [addCategory, { isLoading: isUpdating }] = useAddCategoryMutation();
+  const [addCategory, { isLoading: isUpdating, error }] = useAddCategoryMutation();
+  const navigate = useNavigate();
 
   const [categoryId, setCategoryId] = useState("");
   const [categoryName, setCategoryName] = useState("");
@@ -76,7 +78,7 @@ function AdminCreateCategory() {
           <div className="mx-4 flex">
             <form
               className="mx-auto mb-8 flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const tags = parseTags(tagsList);
                 const body = {
@@ -85,8 +87,13 @@ function AdminCreateCategory() {
                   tags,
                 };
                 if (categoryId.trim() !== "" && categoryName.trim() !== "") {
-                  console.log("submitting form:", body);
-                  addCategory(body);
+                  try {
+                    const result = await addCategory(body).unwrap();
+                    // created successfully, move to the new category edit page
+                    navigate(`/admin/c/${result.id}`);
+                  } catch (err) {
+                    console.error(err);
+                  }
                 }
               }}
             >
@@ -139,6 +146,12 @@ function AdminCreateCategory() {
                   ))}
                 </select>
               </div>
+
+              {error && error.data && (
+                <span className="mx-auto -mb-5 mt-3 w-auto bg-red-600 px-3 py-1 text-sm">
+                  Error: {error.data.error}
+                </span>
+              )}
 
               <button
                 type="submit"
