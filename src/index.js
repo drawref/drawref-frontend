@@ -16,6 +16,7 @@ import AdminRoot from "./routes/AdminRoot";
 import Landing from "./routes/Landing";
 import AdminDashboard from "./routes/AdminDashboard";
 import AdminCreateCategory from "./routes/AdminCreateCategory";
+import AdminEditCategory from "./routes/AdminEditCategory";
 import UserDashboard from "./routes/UserDashboard";
 import DashboardLinks from "./routes/DashboardLinks";
 import SessionSelection, { loader as sessionSelectionLoader } from "./routes/SessionSelection";
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/create-category",
         element: <AdminCreateCategory />,
+      },
+      {
+        path: "/admin/c/:categoryId",
+        element: <AdminEditCategory />,
       },
     ],
   },

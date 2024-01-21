@@ -14,7 +14,7 @@ function AdminDashboard() {
       {isLoading && <TheLoadingModal />}
       <div className="App dark bg-primary-950">
         <TheHeader admin={true} />
-        <div id="content" className="bg-primary-950 text-center text-white">
+        <div id="content" className="mb-8 bg-primary-950 text-center text-white">
           <h1 className="mb-3 mt-10 text-2xl font-semibold">Categories</h1>
           <div className="mx-auto flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
             {categories &&

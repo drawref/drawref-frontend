@@ -24,6 +24,10 @@ export const api = createApi({
       query: () => `categories`,
       providesTags: ["categories"],
     }),
+    getCategory: build.query({
+      query: (id) => `categories/${id}`,
+      providesTags: ["categories"],
+    }),
 
     // images
     //
@@ -68,6 +72,7 @@ export const api = createApi({
 export const {
   useAddCategoryMutation,
   useGetCategoriesQuery,
+  useGetCategoryQuery,
   useAddImageMutation,
   useGetSessionQuery,
   useGetUserQuery,
