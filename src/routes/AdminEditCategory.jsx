@@ -6,20 +6,20 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 import AdminCategoryInfoBox from "../components/AdminCategoryInfoBox";
 
-import { useGetCategoryQuery } from "../app/apiSlice";
+import { useGetCategoryQuery, useEditCategoryMutation } from "../app/apiSlice";
 
 function AdminEditCategory() {
   const user = useSelector((state) => state.userProfile);
   const { categoryId } = useParams();
   const { data: categoryData, isLoading } = useGetCategoryQuery(categoryId);
 
-  console.log(categoryId, categoryData);
+  const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
 
-  const errorToShow = "";
+  const errorToShow = categoryError ? categoryError.data.error : "";
 
   return (
     <>
-      {isLoading && <TheLoadingModal />}
+      {(isLoading || isEditingCategory) && <TheLoadingModal />}
       <div className="App dark bg-primary-950">
         <TheHeader admin={true} />
         <div id="content" className="bg-primary-950 text-center text-white">
@@ -35,13 +35,11 @@ function AdminEditCategory() {
                 onSubmit={async (data) => {
                   if (data.name !== "") {
                     console.log("Editing category:", data);
-                    // try {
-                    //   const result = await addCategory({ token: user.token, body: data }).unwrap();
-                    //   // created successfully, move to the new category edit page
-                    //   navigate(`/admin/c/${result.id}`);
-                    // } catch (err) {
-                    //   console.error(err);
-                    // }
+                    try {
+                      editCategory({ id: categoryId, token: user.token, body: data });
+                    } catch (err) {
+                      console.error(err);
+                    }
                   }
                 }}
               />

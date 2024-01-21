@@ -20,6 +20,17 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
+    editCategory: build.mutation({
+      query: ({ id, token, body }) => ({
+        url: `categories/${id}`,
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["categories"],
+    }),
     getCategories: build.query({
       query: () => `categories`,
       providesTags: ["categories"],
@@ -71,6 +82,7 @@ export const api = createApi({
 
 export const {
   useAddCategoryMutation,
+  useEditCategoryMutation,
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useAddImageMutation,
