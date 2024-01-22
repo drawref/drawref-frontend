@@ -88,7 +88,7 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
 
   return (
     <form
-      className="mx-auto mb-8 box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
+      className="box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6"
       onSubmit={async (e) => {
         e.preventDefault();
 

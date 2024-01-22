@@ -23,7 +23,7 @@ function AdminCreateCategory() {
         <TheHeader admin={true} />
         <div id="content" className="bg-primary-950 text-center text-white">
           <h1 className="mb-6 mt-10 text-3xl font-semibold">Create Category</h1>
-          <div className="mx-4 flex max-w-full items-end">
+          <div className="mx-4 mb-8 flex max-w-full items-start justify-center gap-6">
             <AdminCategoryInfoBox
               error={errorToShow}
               onSubmit={async (data) => {

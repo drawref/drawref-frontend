@@ -52,6 +52,17 @@ export const api = createApi({
         body,
       }),
     }),
+    addImageToCategory: build.mutation({
+      query: ({ token, category, image, body }) => ({
+        url: `categories/${category}/images/${image}`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["categories"],
+    }),
 
     // sessions
     //
@@ -86,6 +97,7 @@ export const {
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useAddImageMutation,
+  useAddImageToCategoryMutation,
   useGetSessionQuery,
   useGetUserQuery,
 } = api;
