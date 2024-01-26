@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
+import { createSearchParams, useLoaderData, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { classLengths, staticImageTimes } from "../app/sessionTimes";
@@ -15,14 +15,18 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(categoryId, tags, timing, navigate, searchBarParams, setSearchBarParams, event) {
+function handleSubmit(categoryId, tags, timing, navigate, createSearchParams, event) {
   event.preventDefault();
 
-  navigate(`/session`);
-  searchBarParams.set("category", categoryId);
-  searchBarParams.set("tags", JSON.stringify(tags));
-  searchBarParams.set("timing", JSON.stringify(timing));
-  setSearchBarParams(searchBarParams);
+  const searchBarParams = {
+    category: categoryId,
+    tags: JSON.stringify(tags),
+    timing: JSON.stringify(timing),
+  };
+  navigate({
+    pathname: `/session`,
+    search: `?${createSearchParams(searchBarParams)}`,
+  });
 }
 
 function SessionSelection() {
@@ -32,7 +36,6 @@ function SessionSelection() {
   const [tags, setTags] = useState({});
 
   const navigate = useNavigate();
-  const [searchBarParams, setSearchBarParams] = useSearchParams();
 
   const { categoryId } = useLoaderData();
   const { data: categories, isLoading } = useGetCategoriesQuery();
@@ -53,7 +56,7 @@ function SessionSelection() {
           <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
           <form
             className="mb-6 flex flex-col gap-3"
-            onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate, searchBarParams, setSearchBarParams)}
+            onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate, createSearchParams)}
           >
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
               {category.tags && <SessionCheckboxGroup tags={category.tags} onChange={(tags) => setTags(tags)} />}
