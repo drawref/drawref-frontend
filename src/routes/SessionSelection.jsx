@@ -15,19 +15,8 @@ export async function loader({ params }) {
   return { categoryId };
 }
 
-function handleSubmit(categoryId, rawTags, timing, navigate, searchBarParams, setSearchBarParams, event) {
+function handleSubmit(categoryId, tags, timing, navigate, searchBarParams, setSearchBarParams, event) {
   event.preventDefault();
-
-  // turn tag objects into a simple [key: array] of chosen values
-  var tags = {};
-  for (const [key, vals] of Object.entries(rawTags)) {
-    const entriesList = Object.entries(vals)
-      .filter(([_, v]) => v)
-      .map(([k]) => k);
-    if (entriesList.length > 0) {
-      tags[key] = entriesList;
-    }
-  }
 
   navigate(`/session`);
   searchBarParams.set("category", categoryId);
@@ -40,6 +29,7 @@ function SessionSelection() {
   const [timingType, setTimingType] = useState("static");
   const [staticTime, setStaticTime] = useState("5m");
   const [classLength, setClassLength] = useState("15m");
+  const [tags, setTags] = useState({});
 
   const navigate = useNavigate();
   const [searchBarParams, setSearchBarParams] = useSearchParams();
@@ -48,7 +38,6 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
-  const tags = useSelector((state) => state.sessionTags.tags);
   const timing = {
     timingType,
     staticTime,
@@ -67,7 +56,7 @@ function SessionSelection() {
             onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate, searchBarParams, setSearchBarParams)}
           >
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
-              {category.tags && <SessionCheckboxGroup categoryId={categoryId} tags={category.tags} />}
+              {category.tags && <SessionCheckboxGroup tags={category.tags} onChange={(tags) => setTags(tags)} />}
             </div>
 
             <hr className="mx-auto my-4 h-1.5 w-32 rounded border-none bg-slate-300" />
