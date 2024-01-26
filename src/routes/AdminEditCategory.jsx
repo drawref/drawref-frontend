@@ -14,6 +14,7 @@ import {
   useAddImageToCategoryMutation,
   useEditCategoryMutation,
   useGetCategoryImagesQuery,
+  useDeleteImageFromCategoryMutation,
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 
@@ -37,6 +38,7 @@ function AdminEditCategory() {
   const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
   const [addImageToCategory, { isLoading: isAddingImageToCategory, error: addImageToCategoryError }] =
     useAddImageToCategoryMutation();
+  const [deleteImageFromCategory] = useDeleteImageFromCategoryMutation();
 
   const errorToShow = categoryError ? categoryError.data.error : "";
 
@@ -154,11 +156,24 @@ function AdminEditCategory() {
                   <h2 className="text-xl font-medium">Images</h2>
                   <div className="flex flex-wrap items-center justify-center gap-4">
                     {categoryImages.map((img) => (
-                      <div
+                      <button
                         key={img.id}
-                        className="h-20 w-20 rounded-lg bg-cover"
+                        className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
+                        data-image={img.id}
                         style={{ backgroundImage: `url(${img.path})` }}
-                      ></div>
+                        onClick={async (e) => {
+                          try {
+                            await deleteImageFromCategory({
+                              category: categoryId,
+                              image: e.target.dataset.image,
+                              token: user.token,
+                            });
+                          } catch (err) {
+                            console.error(err);
+                            return;
+                          }
+                        }}
+                      ></button>
                     ))}
                   </div>
                 </div>

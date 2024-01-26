@@ -63,6 +63,16 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
+    deleteImageFromCategory: build.mutation({
+      query: ({ token, category, image }) => ({
+        url: `categories/${category}/images/${image}`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      invalidatesTags: ["category-images"],
+    }),
     getCategoryImages: build.query({
       query: ({ category, page }) => ({
         url: `categories/${category}/images`,
@@ -108,6 +118,7 @@ export const {
   useGetCategoryQuery,
   useAddImageMutation,
   useAddImageToCategoryMutation,
+  useDeleteImageFromCategoryMutation,
   useGetCategoryImagesQuery,
   useGetSessionQuery,
   useGetUserQuery,
