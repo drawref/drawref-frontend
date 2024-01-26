@@ -54,11 +54,10 @@ function Session() {
   }, []);
 
   // get current image path from session, or from history
-  const currentImagePath = onApiImages
-    ? session && session.length
-      ? session[currentImage].path
-      : ""
-    : historyImages[currentImage].path;
+  const currentImageData = (onApiImages && session ? session[currentImage] : historyImages[currentImage]) || {
+    path: "",
+  };
+  const currentImagePath = currentImageData.path;
 
   return (
     <>
@@ -69,6 +68,18 @@ function Session() {
           style={{ backgroundImage: `url(${currentImagePath})` }}
           onClick={() => setShowUi(!showUi)}
         ></div>
+        {currentImageData && currentImageData.author && (
+          <div className="absolute bottom-0 left-0 z-20 flex w-screen justify-center text-center">
+            <div className="w-auto min-w-[8rem] rounded-t-lg bg-slate-900 bg-opacity-55 text-white">
+              {currentImageData.author_url && (
+                <a href={currentImageData.author_url} className="px-3 pt-2">
+                  {currentImageData.author}
+                </a>
+              )}
+              {!currentImageData.author_url && <span className="px-3 pt-2">{currentImageData.author}</span>}
+            </div>
+          </div>
+        )}
         <SessionTimer seconds={secondsRemaining} />
         {showUi && (
           <div className="absolute bottom-0 left-0 z-40 flex w-screen justify-center">
