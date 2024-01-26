@@ -5,7 +5,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_DRAWREF_API,
   }),
-  tagTypes: ["categories"],
+  tagTypes: ["categories", "category-images"],
   endpoints: (build) => ({
     // categories
     //
@@ -61,7 +61,17 @@ export const api = createApi({
         },
         body,
       }),
-      invalidatesTags: ["categories"],
+      invalidatesTags: ["category-images"],
+    }),
+    getCategoryImages: build.query({
+      query: ({ category, page }) => ({
+        url: `categories/${category}/images`,
+        method: "GET",
+        params: {
+          page,
+        },
+      }),
+      providesTags: ["category-images"],
     }),
 
     // sessions
@@ -98,6 +108,7 @@ export const {
   useGetCategoryQuery,
   useAddImageMutation,
   useAddImageToCategoryMutation,
+  useGetCategoryImagesQuery,
   useGetSessionQuery,
   useGetUserQuery,
 } = api;

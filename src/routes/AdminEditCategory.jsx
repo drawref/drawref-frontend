@@ -13,6 +13,7 @@ import {
   useAddImageMutation,
   useAddImageToCategoryMutation,
   useEditCategoryMutation,
+  useGetCategoryImagesQuery,
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 
@@ -20,8 +21,15 @@ function AdminEditCategory() {
   const user = useSelector((state) => state.userProfile);
   const { categoryId } = useParams();
   const { data: categoryData, isLoading } = useGetCategoryQuery(categoryId);
+  const {
+    data: categoryImages,
+    isLoading: isLoadingCategoryImages,
+    error: getCategoryImagesError,
+  } = useGetCategoryImagesQuery({ category: categoryId, page: 0 });
 
   const [uploadTags, setUploadTags] = useState({});
+  const [uploadAuthorName, setUploadAuthorName] = useState("");
+  const [uploadAuthorUrl, setUploadAuthorUrl] = useState("");
   const [uploadFiles, setUploadFiles] = useState([]);
 
   const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
@@ -59,65 +67,103 @@ function AdminEditCategory() {
                 }}
               />
             )}
-            {!isLoading && categoryData && (
-              <div className="box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
-                <h2 className="text-xl font-medium">Upload Images</h2>
-                <div className="grid grid-cols-4 gap-x-4 gap-y-3">
-                  <SessionCheckboxGroup tags={categoryData.tags} onChange={(tags) => setUploadTags(tags)} />
-                </div>
-                <input
-                  type="file"
-                  id="coverImage"
-                  multiple
-                  onChange={async (e) => {
-                    // upload
-                    setUploadFiles((state) => {
-                      return state.concat([...e.target.files]);
-                    });
-
-                    for (const file of [...e.target.files]) {
-                      try {
-                        const fData = new FormData();
-                        fData.append("image", file);
-                        const uploadResult = await uploadImage({ token: user.token, body: fData }).unwrap();
-
-                        if (uploadResult.path) {
-                          // add image
-                          const addResult = await addImage({
-                            token: user.token,
-                            body: {
-                              path: uploadResult.path,
-                              // author name and url
-                              author: "",
-                            },
-                          });
-
-                          // add image to category
-                          const addToCatResult = await addImageToCategory({
-                            category: categoryId,
-                            image: addResult.data.id,
-                            token: user.token,
-                            body: {
-                              tags: uploadTags,
-                            },
-                          });
-                        }
-                      } catch (err) {
-                        console.error(err);
-                        return;
-                      }
-
-                      // remove this file
+            <div className="flex w-[28em] flex-col gap-6">
+              {!isLoading && categoryData && (
+                <div className="box-border flex max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
+                  <h2 className="text-xl font-medium">Upload Images</h2>
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-3">
+                    <SessionCheckboxGroup tags={categoryData.tags} onChange={(tags) => setUploadTags(tags)} />
+                  </div>
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-3">
+                    <label htmlFor="author-name" className="text-lg font-medium">
+                      Author
+                    </label>
+                    <input
+                      id="author-name"
+                      className="col-span-3 rounded px-2 py-1 text-defaultText"
+                      value={uploadAuthorName}
+                      onChange={(e) => setUploadAuthorName(e.target.value)}
+                    ></input>
+                    <label htmlFor="author-url" className="text-lg font-medium">
+                      URL
+                    </label>
+                    <input
+                      id="author-url"
+                      className="col-span-3 rounded px-2 py-1 text-defaultText"
+                      placeholder="Author's URL"
+                      value={uploadAuthorUrl}
+                      onChange={(e) => setUploadAuthorUrl(e.target.value)}
+                    ></input>
+                  </div>
+                  <input
+                    type="file"
+                    id="coverImage"
+                    multiple
+                    onChange={async (e) => {
+                      // upload
                       setUploadFiles((state) => {
-                        state = state.filter((f) => f !== file);
-                        return state;
+                        return state.concat([...e.target.files]);
                       });
-                    }
-                  }}
-                ></input>
-                <p>{uploadFiles.length}</p>
-              </div>
-            )}
+
+                      for (const file of [...e.target.files]) {
+                        try {
+                          const fData = new FormData();
+                          fData.append("image", file);
+                          const uploadResult = await uploadImage({ token: user.token, body: fData }).unwrap();
+
+                          if (uploadResult.path) {
+                            // add image
+                            const addResult = await addImage({
+                              token: user.token,
+                              body: {
+                                path: uploadResult.path,
+                                // author name and url
+                                author: uploadAuthorName,
+                                author_url: uploadAuthorUrl,
+                              },
+                            });
+
+                            // add image to category
+                            const addToCatResult = await addImageToCategory({
+                              category: categoryId,
+                              image: addResult.data.id,
+                              token: user.token,
+                              body: {
+                                tags: uploadTags,
+                              },
+                            });
+                          }
+                        } catch (err) {
+                          console.error(err);
+                          return;
+                        }
+
+                        // remove this file
+                        setUploadFiles((state) => {
+                          state = state.filter((f) => f !== file);
+                          return state;
+                        });
+                      }
+                    }}
+                  ></input>
+                  <p>{uploadFiles.length}</p>
+                </div>
+              )}
+              {!isLoadingCategoryImages && (
+                <div className="box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
+                  <h2 className="text-xl font-medium">Images</h2>
+                  <div className="flex flex-wrap items-center justify-center gap-4">
+                    {categoryImages.map((img) => (
+                      <div
+                        key={img.id}
+                        className="h-20 w-20 rounded-lg bg-cover"
+                        style={{ backgroundImage: `url(${img.path})` }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <TheFooter />
