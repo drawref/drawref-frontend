@@ -54,7 +54,11 @@ function Session() {
   }, []);
 
   // get current image path from session, or from history
-  const currentImagePath = onApiImages ? (session ? session[currentImage].path : "") : historyImages[currentImage].path;
+  const currentImagePath = onApiImages
+    ? session && session.length
+      ? session[currentImage].path
+      : ""
+    : historyImages[currentImage].path;
 
   return (
     <>
