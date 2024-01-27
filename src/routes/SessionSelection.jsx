@@ -42,12 +42,12 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
-  const { data: availableImageData, isLoading: isLoadingAvailableImageData } = useGetAvailableImageCountQuery({
+  const { data: availableImageData, isFetching: isFetchingAvailableImageData } = useGetAvailableImageCountQuery({
     categoryId,
     tags: debouncedTags,
   });
   var availableImages = availableImageData ? availableImageData.images : "unknown";
-  var loadingAvailableImages = isWaitingToUpdateTags || isLoadingAvailableImageData;
+  var loadingAvailableImages = isWaitingToUpdateTags || isFetchingAvailableImageData;
 
   const timing = {
     timingType,
