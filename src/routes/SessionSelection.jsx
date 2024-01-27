@@ -34,7 +34,7 @@ function SessionSelection() {
   const [staticTime, setStaticTime] = useState("5m");
   const [classLength, setClassLength] = useState("15m");
   const [tags, setTags] = useState({});
-  const [debouncedTags, setDebouncedTags] = useDebouncedState({}, 1000);
+  const [debouncedTags, setDebouncedTags, isWaitingToUpdateTags] = useDebouncedState({}, 700);
 
   const navigate = useNavigate();
 
@@ -42,8 +42,12 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
 
-  const { data: availableImageData } = useGetAvailableImageCountQuery({ categoryId, tags: debouncedTags });
-  const availableImages = availableImageData ? availableImageData.images : "unknown";
+  const { data: availableImageData, isLoading: isLoadingAvailableImageData } = useGetAvailableImageCountQuery({
+    categoryId,
+    tags: debouncedTags,
+  });
+  var availableImages = availableImageData ? availableImageData.images : "unknown";
+  var loadingAvailableImages = isWaitingToUpdateTags || isLoadingAvailableImageData;
 
   const timing = {
     timingType,
@@ -75,7 +79,7 @@ function SessionSelection() {
             </div>
 
             <div className="-mb-2 mt-1.5 text-defaultText opacity-90 dark:text-white">
-              {availableImages} available images
+              {loadingAvailableImages ? `... loading ...` : `${availableImages} available images`}
             </div>
 
             <hr className="mx-auto my-4 h-1.5 w-32 rounded border-none bg-slate-300" />

@@ -4,13 +4,16 @@ import { useState } from "react";
 // This can be used to reduce API calls or other changes.
 export function useDebouncedState(initialState, ms) {
   const [value, setValueDirectly] = useState(initialState);
+  const [isWaiting, setIsWaiting] = useState(false);
 
   var timer;
   const setValue = (newValueOrFunc) => {
+    setIsWaiting(true);
     clearTimeout(timer);
     timer = setTimeout(() => {
       setValueDirectly(newValueOrFunc);
+      setIsWaiting(false);
     }, ms);
   };
-  return [value, setValue];
+  return [value, setValue, isWaiting];
 }
