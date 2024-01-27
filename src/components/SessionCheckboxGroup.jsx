@@ -22,7 +22,13 @@ function SessionCheckboxGroup({ tags, onChange }) {
               id={`${info.id} ${name}`}
               checked={data[info.id].includes(name)}
               onChange={(e) => {
-                const newData = { ...data };
+                // make copy of newData so we can freely edit it
+                //  in future without worrying about other parent using it
+                const newData = {};
+                for (const [key, value] of Object.entries(data)) {
+                  newData[key] = Array.from(value);
+                }
+
                 if (e.target.checked) {
                   newData[info.id].push(name);
                 } else {

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { createSearchParams, useLoaderData, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { classLengths, staticImageTimes } from "../app/sessionTimes";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
-import { useGetCategoriesQuery } from "../app/apiSlice";
+import { useGetAvailableImageCountQuery, useGetCategoriesQuery } from "../app/apiSlice";
 import SessionCheckboxGroup from "../components/SessionCheckboxGroup";
+import { useDebouncedState } from "../app/useDebouncedState";
 
 export async function loader({ params }) {
   const categoryId = params.categoryId;
@@ -34,12 +34,16 @@ function SessionSelection() {
   const [staticTime, setStaticTime] = useState("5m");
   const [classLength, setClassLength] = useState("15m");
   const [tags, setTags] = useState({});
+  const [debouncedTags, setDebouncedTags] = useDebouncedState({}, 1000);
 
   const navigate = useNavigate();
 
   const { categoryId } = useLoaderData();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories ? categories.filter((cat) => cat.id === categoryId)[0] : {};
+
+  const { data: availableImageData } = useGetAvailableImageCountQuery({ categoryId, tags: debouncedTags });
+  const availableImages = availableImageData ? availableImageData.images : "unknown";
 
   const timing = {
     timingType,
@@ -58,8 +62,20 @@ function SessionSelection() {
             className="mb-6 flex flex-col gap-3"
             onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate, createSearchParams)}
           >
-            <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-5">
-              {category.tags && <SessionCheckboxGroup tags={category.tags} onChange={(tags) => setTags(tags)} />}
+            <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-4">
+              {category.tags && (
+                <SessionCheckboxGroup
+                  tags={category.tags}
+                  onChange={(tags) => {
+                    setTags(tags);
+                    setDebouncedTags(tags);
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="-mb-2 mt-1.5 text-defaultText opacity-90 dark:text-white">
+              {availableImages} available images
             </div>
 
             <hr className="mx-auto my-4 h-1.5 w-32 rounded border-none bg-slate-300" />

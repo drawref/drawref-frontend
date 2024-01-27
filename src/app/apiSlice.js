@@ -96,6 +96,16 @@ export const api = createApi({
         },
       }),
     }),
+    getAvailableImageCount: build.query({
+      query: ({ categoryId, tags }) => ({
+        url: `session/count`,
+        method: "GET",
+        params: {
+          category: categoryId,
+          tags: JSON.stringify(tags),
+        },
+      }),
+    }),
 
     // user data
     //
@@ -121,5 +131,6 @@ export const {
   useDeleteImageFromCategoryMutation,
   useGetCategoryImagesQuery,
   useGetSessionQuery,
+  useGetAvailableImageCountQuery,
   useGetUserQuery,
 } = api;
