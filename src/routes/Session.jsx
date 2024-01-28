@@ -68,9 +68,10 @@ function Session() {
           style={{ backgroundImage: `url(${currentImagePath})` }}
           onClick={() => setShowUi(!showUi)}
         ></div>
-        {currentImageData && currentImageData.author && (
-          <div className="absolute bottom-0 left-0 z-20 flex w-screen justify-center text-center">
-            <div className="w-auto min-w-[8rem] rounded-t-lg bg-slate-900 bg-opacity-55 text-white">
+        <SessionTimer seconds={secondsRemaining} />
+        <div className="absolute bottom-0 left-0 z-40 flex w-screen flex-col items-center">
+          {currentImageData && currentImageData.author && (
+            <div className="w-auto min-w-[8rem] rounded-t-lg bg-slate-900 bg-opacity-55 text-center text-white">
               {currentImageData.author_url && (
                 <a href={currentImageData.author_url} className="px-3 pt-2">
                   {currentImageData.author}
@@ -78,11 +79,8 @@ function Session() {
               )}
               {!currentImageData.author_url && <span className="px-3 pt-2">{currentImageData.author}</span>}
             </div>
-          </div>
-        )}
-        <SessionTimer seconds={secondsRemaining} />
-        {showUi && (
-          <div className="absolute bottom-0 left-0 z-40 flex w-screen justify-center">
+          )}
+          {showUi && (
             <div className="flex min-h-8 min-w-20 justify-center rounded-t-3xl bg-primary-900 bg-opacity-95 px-2">
               <button
                 type="button"
@@ -140,8 +138,8 @@ function Session() {
                 <Icon path={mdiHeart} title="Favourite" size={1} className="text-favouriteActive" />
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </>
   );
