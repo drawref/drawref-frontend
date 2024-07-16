@@ -4,7 +4,7 @@ import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import bg from "../assets/login-bg.jpg";
 import github from "../assets/login-logos/github-light.svg";
-import google from "../assets/login-logos/google.svg";
+// import google from "../assets/login-logos/google.svg";
 
 function Login() {
   return (
@@ -21,10 +21,10 @@ function Login() {
               <img src={github} alt="GitHub logo" className="h-7" />
               <span>Sign in with GitHub</span>
             </a>
-            <div className="my-2.5 flex cursor-pointer items-center gap-4 rounded border-[3px] border-slate-200 bg-white py-2 pl-[2.85rem] text-center text-lg font-semibold">
+            {/* <div className="my-2.5 flex cursor-pointer items-center gap-4 rounded border-[3px] border-slate-200 bg-white py-2 pl-[2.85rem] text-center text-lg font-semibold">
               <img src={google} alt="Google logo" className="h-7" />
               <span>Sign in with Google</span>
-            </div>
+            </div> */}
           </div>
         </div>
         <TheFooter />
