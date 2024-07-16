@@ -1,45 +1,75 @@
-# Getting Started with Create React App
+![Logo](src/assets/logo-light.svg)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a webapp that holds and presents images, for drawing reference. This repo holds the frontend React app.
 
-## Available Scripts
+See the [planning document](https://github.com/DanielOaks/drawref-backend/blob/main/PLANNING.md) for details about the project design and future plans, and the [backend repo](https://github.com/DanielOaks/drawref-backend) for the interface.
 
-In the project directory, you can run:
+## Environment variables
 
-### `yarn start`
+You can configure the frontend through these environment variables:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- `REACT_APP_DRAWREF_API`: The backend address, with `/api/` at the end.
+- `REACT_APP_DRAWREF_UPLOAD`: The backend address, with `/upload/` at the end.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+These environment variables also work on the docker image.
 
-### `yarn test`
+## Docker quick start
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+You can get the frontend up and running quickly with Docker. Note, this runs a development build, and is not appropriate for production hosting.
 
-### `yarn build`
+The [quick start instructions on the backend](https://github.com/DanielOaks/drawref-backend#docker-quick-start) explain starting both components.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+But here is just starting the frontend:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+docker run -it -e REACT_APP_DRAWREF_API=http://localhost:3300/api/ -e REACT_APP_DRAWREF_UPLOAD=http://localhost:3300/upload/ -p 3000:3000 ghcr.io/danieloaks/drawref-frontend:main
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Finally, access the app on port 3000. If running the command locally, at http://localhost:3000
 
-### `yarn eject`
+## Development
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+If you want to get started developing the app, you can use the below commands.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Make sure to install the dependencies:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+asdf install  # sets up the right version of nodejs
+yarn install
+```
 
-## Learn More
+### Development Server
+
+Start the development server on http://localhost:3000
+
+```bash
+yarn dev
+```
+
+### Testing
+
+Run the test suite:
+
+```bash
+yarn test
+```
+
+See [create-react-app / running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### Production
+
+Builds the app for production to the `build` folder.
+It correctly bundles React in production mode and optimizes the build for the best performance. The build is minified and the filenames include the hashes.
+
+See [create-react-app / deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+```bash
+yarn build
+```
+
+<!-- ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
@@ -61,14 +91,10 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/m
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
 ### `yarn build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify) -->
 
 # License
 
-This project is released under the ISC license.
+This software is released under the ISC license.
