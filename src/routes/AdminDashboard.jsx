@@ -59,6 +59,11 @@ function AdminDashboard() {
             <Link to="/admin/create-category" className="block py-3 hover:bg-primary-800">
               Create new
             </Link>
+            {(!categories || categories.length === 0) && (
+              <Link to="/admin/add-sample-data" className="block py-3 hover:bg-primary-800">
+                Add sample data
+              </Link>
+            )}
           </div>
         </div>
         <TheFooter />

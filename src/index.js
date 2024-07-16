@@ -15,6 +15,7 @@ import AuthenticatedRoot from "./routes/AuthenticatedRoot";
 import AdminRoot from "./routes/AdminRoot";
 import Landing from "./routes/Landing";
 import AdminDashboard from "./routes/AdminDashboard";
+import AdminAddSampleData from "./routes/AdminAddSampleData";
 import AdminCreateCategory from "./routes/AdminCreateCategory";
 import AdminEditCategory from "./routes/AdminEditCategory";
 import UserDashboard from "./routes/UserDashboard";
@@ -53,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/c/:categoryId",
         element: <AdminEditCategory />,
+      },
+      {
+        path: "/admin/add-sample-data",
+        element: <AdminAddSampleData />,
       },
     ],
   },

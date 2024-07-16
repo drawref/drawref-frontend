@@ -141,6 +141,17 @@ export const api = createApi({
         },
       }),
     }),
+    addSampleData: build.mutation({
+      query: ({ token, body }) => ({
+        url: `samples/import`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["categories"],
+    }),
   }),
 });
 
@@ -158,4 +169,5 @@ export const {
   useGetAvailableImageCountQuery,
   useGetUserQuery,
   useGetSampleDataQuery,
+  useAddSampleDataMutation,
 } = api;
