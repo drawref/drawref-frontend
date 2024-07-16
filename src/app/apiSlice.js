@@ -129,6 +129,18 @@ export const api = createApi({
         },
       }),
     }),
+
+    // sample data
+    //
+    getSampleData: build.query({
+      query: ({ token }) => ({
+        url: `samples`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
   }),
 });
 
@@ -145,4 +157,5 @@ export const {
   useGetSessionQuery,
   useGetAvailableImageCountQuery,
   useGetUserQuery,
+  useGetSampleDataQuery,
 } = api;

@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import slugify from "slugify";
 
-import { categoryTags } from "../app/tagTemplates";
-import { useAddImageMutation } from "../app/apiSlice";
+import { useAddImageMutation, useGetSampleDataQuery } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 
 function stringifyTags(tagsList) {
@@ -60,8 +59,10 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
 
   const coverRef = useRef(null);
 
+  const { data: sampleData, isLoading: isSampleDataLoading } = useGetSampleDataQuery({ token: user.token });
   const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
   const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
+  const categoryTags = sampleData && sampleData.categories;
 
   const otherTextErrors = [addImageError, uploadImageError].filter((e) => e && e.data).map((e) => e.data.error);
   const errorToShow = [error, otherTextErrors].join(" ").trim();
@@ -74,15 +75,9 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
       // if it's been changed, don't replace name, otherwise replace name.
       setCName(value.name);
 
-      // if tags has been manually modified, we shouldask for confirmation
+      // if tags has been manually modified, we should ask for confirmation
       //  before just replacing all the existing values like this.
-      setCTags(
-        value.tags
-          .trim()
-          .split("\n")
-          .map((l) => l.trim())
-          .join("\n"),
-      );
+      setCTags(value.tags.map((entry) => `${entry.name}: ${entry.values.join(", ")}`).join("\n"));
     }
   }
 
@@ -174,18 +169,21 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
         <label htmlFor="tagTemplate" className="text-lg font-medium">
           Use template
         </label>
-        <select
-          id="tagTemplate"
-          className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
-          onChange={(e) => applyTagTemplate(e.target.value)}
-        >
-          <option value="">-- Select --</option>
-          {categoryTags.map((info) => (
-            <option key={info.name} value={info.name}>
-              {info.name}
-            </option>
-          ))}
-        </select>
+        {isSampleDataLoading && <span>Loading...</span>}
+        {!isSampleDataLoading && (
+          <select
+            id="tagTemplate"
+            className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+            onChange={(e) => applyTagTemplate(e.target.value)}
+          >
+            <option value="">-- Select --</option>
+            {categoryTags.map((info) => (
+              <option key={info.name} value={info.name}>
+                {info.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {errorToShow && (
