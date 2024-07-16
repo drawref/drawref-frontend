@@ -7,7 +7,7 @@ function displayTime(seconds) {
   return d.toISOString().slice(d.getUTCHours() > 0 ? 11 : 14, 19);
 }
 
-function sessionTimer({ seconds, onTimeEnded }) {
+function SessionTimer({ seconds, onTimeEnded }) {
   const [showTime, setShowTime] = useState(true);
 
   return (
@@ -20,8 +20,8 @@ function sessionTimer({ seconds, onTimeEnded }) {
     </div>
   );
 }
-sessionTimer.propTypes = {
+SessionTimer.propTypes = {
   seconds: PropTypes.number.isRequired,
 };
 
-export default sessionTimer;
+export default SessionTimer;
