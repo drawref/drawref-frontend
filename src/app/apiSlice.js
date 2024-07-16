@@ -115,6 +115,7 @@ export const api = createApi({
           tags: JSON.stringify(tags),
         },
       }),
+      providesTags: ["category-images"],
     }),
 
     // user data
