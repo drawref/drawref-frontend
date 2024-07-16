@@ -31,6 +31,16 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
+    deleteCategory: build.mutation({
+      query: ({ token, category }) => ({
+        url: `categories/${category}`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      invalidatesTags: ["categories"],
+    }),
     getCategories: build.query({
       query: () => `categories`,
       providesTags: ["categories"],
@@ -124,6 +134,7 @@ export const api = createApi({
 export const {
   useAddCategoryMutation,
   useEditCategoryMutation,
+  useDeleteCategoryMutation,
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useAddImageMutation,
