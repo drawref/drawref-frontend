@@ -15,6 +15,7 @@ import AuthenticatedRoot from "./routes/AuthenticatedRoot";
 import AdminRoot from "./routes/AdminRoot";
 import Landing from "./routes/Landing";
 import About from "./routes/About";
+import Credits from "./routes/Credits";
 import AdminDashboard from "./routes/AdminDashboard";
 import AdminAddSampleData from "./routes/AdminAddSampleData";
 import AdminCreateCategory from "./routes/AdminCreateCategory";
@@ -86,6 +87,10 @@ const router = createBrowserRouter([
   {
     path: "/about",
     element: <About />,
+  },
+  {
+    path: "/credits",
+    element: <Credits />,
   },
   {
     path: "*",

@@ -93,6 +93,12 @@ export const api = createApi({
       }),
       providesTags: ["category-images"],
     }),
+    getImageSources: build.query({
+      query: () => ({
+        url: `image/sources`,
+        method: "GET",
+      }),
+    }),
 
     // sessions
     //
@@ -165,6 +171,7 @@ export const {
   useAddImageToCategoryMutation,
   useDeleteImageFromCategoryMutation,
   useGetCategoryImagesQuery,
+  useGetImageSourcesQuery,
   useGetSessionQuery,
   useGetAvailableImageCountQuery,
   useGetUserQuery,
