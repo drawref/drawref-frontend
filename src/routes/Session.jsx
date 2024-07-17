@@ -134,9 +134,9 @@ function Session() {
               >
                 <Icon path={mdiStepForward} title="Next image" size={1.2} className="text-white" />
               </button>
-              <button type="button" className="py-2.5 pl-3 pr-4">
+              {/* <button type="button" className="py-2.5 pl-3 pr-4">
                 <Icon path={mdiHeart} title="Favourite" size={1} className="text-favouriteActive" />
-              </button>
+              </button> */}
             </div>
           )}
         </div>
