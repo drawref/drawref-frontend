@@ -14,6 +14,7 @@ import "@fontsource/open-sans/600.css";
 import AuthenticatedRoot from "./routes/AuthenticatedRoot";
 import AdminRoot from "./routes/AdminRoot";
 import Landing from "./routes/Landing";
+import About from "./routes/About";
 import AdminDashboard from "./routes/AdminDashboard";
 import AdminAddSampleData from "./routes/AdminAddSampleData";
 import AdminCreateCategory from "./routes/AdminCreateCategory";
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
   {
     path: "/login/success",
     element: <LoginSuccess />,
+  },
+  {
+    path: "/about",
+    element: <About />,
   },
   {
     path: "*",

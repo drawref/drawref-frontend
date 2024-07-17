@@ -36,3 +36,7 @@ code {
 body {
   @apply bg-primary-950;
 }
+
+.basic-formatting a {
+  @apply text-blue-700 underline;
+}
