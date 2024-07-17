@@ -22,6 +22,7 @@ function SessionTimer({ seconds, onTimeEnded }) {
 }
 SessionTimer.propTypes = {
   seconds: PropTypes.number.isRequired,
+  onTimeEnded: PropTypes.function,
 };
 
 export default SessionTimer;
