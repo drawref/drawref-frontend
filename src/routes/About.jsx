@@ -36,13 +36,13 @@ function About() {
             </ul>
             <p>How does DrawRef differ? You can run DrawRef on your own machine and import your own images.</p>
             <p>
-              Right now, you need to be pretty computer-literate to run your own copy (check out
+              Right now, you need to be pretty computer-literate to run your own copy (check out{" "}
               <a href="https://github.com/danieloaks/drawref-backend">the instructions!</a>), but hopefully one day it
               will be super simple to do so.
             </p>
             <p>
               <a href="https://drawref.danieloaks.net/">drawref.danieloaks.net</a> is a hosted copy of the app, with all
-              sample data imported! This lets you play around with it and see how DrawRef works.
+              sample data imported. This lets you play around with it and see how DrawRef works.
             </p>
           </div>
         </div>
