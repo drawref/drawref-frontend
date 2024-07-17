@@ -73,7 +73,7 @@ function Session() {
           {currentImageData && currentImageData.author && (
             <div className="w-auto min-w-[8rem] rounded-t-lg bg-slate-900 bg-opacity-55 text-center text-white">
               {currentImageData.author_url && (
-                <a href={currentImageData.author_url} className="px-3 pt-2">
+                <a href={currentImageData.author_url} target="_blank" rel="noreferrer" className="px-3 pt-2">
                   {currentImageData.author}
                 </a>
               )}
