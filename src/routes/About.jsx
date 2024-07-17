@@ -18,7 +18,7 @@ function About() {
             <p>
               Basically, <a href="https://github.com/danieloaks/drawref-backend">the software</a> lets you import your
               own reference images and have them presented on a timed basis. Here are a few other sites that let you do
-              the same thing:
+              the timed-reference thing:
             </p>
             <ul className="ml-6 list-disc">
               <li>
