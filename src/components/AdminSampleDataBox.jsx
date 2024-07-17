@@ -33,14 +33,19 @@ function AdminSampleDataBox({ onSubmit, error }) {
     sampleData &&
     uploadData &&
     uploadData.images &&
-    sampleData.images
-      .map((img) => {
-        if (uploadData.images.indexOf(img.author) !== -1) {
-          return img.requirement;
-        }
-        return "";
-      })
-      .filter((name) => !!name);
+    (uploadData.images.length > 0
+      ? ["You will keep the author name and link attached to each sample image."]
+      : []
+    ).concat(
+      sampleData.images
+        .map((img) => {
+          if (uploadData.images.indexOf(img.author) !== -1) {
+            return img.requirement;
+          }
+          return "";
+        })
+        .filter((name) => !!name),
+    );
 
   return (
     <>
@@ -75,9 +80,11 @@ function AdminSampleDataBox({ onSubmit, error }) {
             {conditions && conditions.length > 0 && (
               <>
                 <h2 className="mt-6 text-xl font-medium">Conditions</h2>
-                <ul className="">
+                <ul className="mx-5 -mt-2.5 list-disc text-left">
                   {conditions.map((name) => (
-                    <li key={name}>{name}</li>
+                    <li key={name} className="my-2">
+                      {name}
+                    </li>
                   ))}
                 </ul>
                 <div className="flex items-center gap-3">
