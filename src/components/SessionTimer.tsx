@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 
-function displayTime(seconds) {
+interface Props {
+  seconds: number;
+  onTimeEnded?: () => void;
+}
+
+function displayTime(seconds: number) {
   const d = new Date(seconds * 1000);
   // only show hours if there's more than one hour left on this image
   return d.toISOString().slice(d.getUTCHours() > 0 ? 11 : 14, 19);
 }
 
-function SessionTimer({ seconds, onTimeEnded }) {
+function SessionTimer({ seconds, onTimeEnded }: Props) {
   const [showTime, setShowTime] = useState(true);
 
   return (
@@ -20,9 +24,5 @@ function SessionTimer({ seconds, onTimeEnded }) {
     </div>
   );
 }
-SessionTimer.propTypes = {
-  seconds: PropTypes.number.isRequired,
-  onTimeEnded: PropTypes.func,
-};
 
 export default SessionTimer;
