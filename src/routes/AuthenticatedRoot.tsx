@@ -1,8 +1,8 @@
 import { Outlet, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../app/hooks";
 
 function AuthenticatedRoot() {
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   if (user.loggedIn) {
     return <Outlet />;

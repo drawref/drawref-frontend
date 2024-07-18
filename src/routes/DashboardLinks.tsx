@@ -1,11 +1,12 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+
+import { useAppSelector } from "../app/hooks";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 
 function DashboardLinks() {
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   return (
     <>

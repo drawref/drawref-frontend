@@ -6,7 +6,7 @@ import { useAppSelector } from "../app/hooks";
 import logo from "../assets/logo-light.svg";
 
 interface Props {
-  admin: boolean;
+  admin?: boolean;
 }
 
 function TheHeader({ admin }: Props) {

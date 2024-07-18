@@ -1,14 +1,13 @@
-import { useDispatch, useSelector } from "react-redux";
-
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout } from "../app/userProfileSlice";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 
 function UserDashboard() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   return (
     <>
