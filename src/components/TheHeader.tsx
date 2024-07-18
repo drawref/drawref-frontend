@@ -1,13 +1,16 @@
 import Icon from "@mdi/react";
 import { mdiLoginVariant, mdiAccountCircle } from "@mdi/js";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
 
+import { useAppSelector } from "../app/hooks";
 import logo from "../assets/logo-light.svg";
 
-function TheHeader({ admin }) {
-  const user = useSelector((state) => state.userProfile);
+interface Props {
+  admin: boolean;
+}
+
+function TheHeader({ admin }: Props) {
+  const user = useAppSelector((state) => state.userProfile);
 
   return (
     <>
@@ -40,8 +43,5 @@ function TheHeader({ admin }) {
     </>
   );
 }
-TheHeader.propTypes = {
-  admin: PropTypes.bool,
-};
 
 export default TheHeader;

@@ -35,6 +35,10 @@ export const store = configureStore({
     getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(api.middleware).concat(upload.middleware),
 });
 
+export type AppStore = typeof store;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];
+
 // configure listeners using the provided defaults
 setupListeners(store.dispatch);
 

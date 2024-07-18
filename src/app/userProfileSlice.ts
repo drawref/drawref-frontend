@@ -1,6 +1,21 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+interface UserProfileData {
+  admin: boolean;
+  name: string;
+  exp: string;
+  token: string;
+}
+
+interface UserProfileState {
+  loggedIn: boolean;
+  admin: boolean;
+  name: string;
+  exp: string;
+  token: string;
+}
+
+const initialState: UserProfileState = {
   loggedIn: false,
   admin: false,
   name: "User",
@@ -12,7 +27,7 @@ export const userProfileSlice = createSlice({
   name: "sessionMetadata",
   initialState,
   reducers: {
-    login: (state, action) => {
+    login: (state, action: PayloadAction<UserProfileData>) => {
       const { name, admin, exp, token } = action.payload;
       state.loggedIn = true;
       state.admin = admin;
