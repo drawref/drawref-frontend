@@ -74,7 +74,10 @@ function AdminEditCategory() {
                 <div className="box-border flex max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
                   <h2 className="text-xl font-medium">Upload Images</h2>
                   <div className="grid grid-cols-4 gap-x-4 gap-y-3">
-                    <SessionCheckboxGroup tags={categoryData.tags} onChange={(tags) => setUploadTags(tags)} />
+                    <SessionCheckboxGroup
+                      tags={categoryData.tags}
+                      onChange={(tags) => setUploadTags(Object.fromEntries(tags.entries()))}
+                    />
                   </div>
                   <div className="grid grid-cols-4 gap-x-4 gap-y-3">
                     <label htmlFor="author-name" className="text-lg font-medium">

@@ -1,10 +1,15 @@
 import { Fragment, useState } from "react";
-import PropTypes from "prop-types";
+import { Tag } from "../types/drawref";
 
-function SessionCheckboxGroup({ tags, onChange }) {
-  const emptyTags = {};
+interface Props {
+  tags: Tag[];
+  onChange?(newData: Map<string, string[]>): void;
+}
+
+function SessionCheckboxGroup({ tags, onChange }: Props) {
+  const emptyTags = new Map<string, string[]>();
   for (const info of tags) {
-    emptyTags[info.id] = [];
+    emptyTags.set(info.id, []);
   }
   const [data, setData] = useState(emptyTags);
 
@@ -20,19 +25,24 @@ function SessionCheckboxGroup({ tags, onChange }) {
             <input
               type="checkbox"
               id={`${info.id} ${name}`}
-              checked={data[info.id].includes(name)}
+              checked={data.get(info.id)?.includes(name)}
               onChange={(e) => {
                 // make copy of newData so we can freely edit it
                 //  in future without worrying about other parent using it
-                const newData = {};
-                for (const [key, value] of Object.entries(data)) {
-                  newData[key] = Array.from(value);
+                const newData = new Map<string, string[]>();
+                for (const [key, value] of data.entries()) {
+                  newData.set(key, Array.from(value));
                 }
 
                 if (e.target.checked) {
-                  newData[info.id].push(name);
+                  const newArray = newData.get(info.id) || [];
+                  newArray.push(name);
+                  newData.set(info.id, newArray);
                 } else {
-                  newData[info.id] = newData[info.id].filter((entry) => entry != name);
+                  newData.set(
+                    info.id,
+                    (newData.get(info.id) || []).filter((entry) => entry != name),
+                  );
                 }
                 setData(newData);
 
@@ -50,9 +60,5 @@ function SessionCheckboxGroup({ tags, onChange }) {
     </Fragment>
   ));
 }
-SessionCheckboxGroup.propTypes = {
-  tags: PropTypes.array.isRequired,
-  onChange: PropTypes.func,
-};
 
 export default SessionCheckboxGroup;

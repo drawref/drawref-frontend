@@ -74,7 +74,10 @@ function AdminSampleDataBox({ onSubmit, error }) {
           <>
             <h2 className="text-xl font-medium">Import</h2>
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-4">
-              <SessionCheckboxGroup tags={checkboxDefaultData} onChange={(data) => setUploadData(data)} />
+              <SessionCheckboxGroup
+                tags={checkboxDefaultData}
+                onChange={(data) => setUploadData(Object.fromEntries(data.entries()))}
+              />
             </div>
 
             {conditions && conditions.length > 0 && (
