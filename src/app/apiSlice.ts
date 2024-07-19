@@ -156,7 +156,7 @@ export const api = createApi({
         },
         body,
       }),
-      invalidatesTags: ["categories"],
+      invalidatesTags: ["categories", "category-images"],
     }),
   }),
 });
