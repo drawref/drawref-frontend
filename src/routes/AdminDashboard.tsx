@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Icon from "@mdi/react";
 import { mdiTrashCan } from "@mdi/js";
@@ -7,13 +6,14 @@ import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 
+import { useAppSelector } from "../app/hooks";
 import { useGetCategoriesQuery, useDeleteCategoryMutation } from "../app/apiSlice";
 
 function AdminDashboard() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
 
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   return (
     <>
@@ -42,7 +42,7 @@ function AdminDashboard() {
                       ) {
                         try {
                           await deleteCategory({
-                            category: cat.id,
+                            id: cat.id,
                             token: user.token,
                           });
                         } catch (err) {

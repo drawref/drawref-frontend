@@ -1,4 +1,53 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Category, Tag } from "../types/drawref";
+
+interface AddCategoryRequest {
+  token: string;
+  body: Category;
+}
+
+interface ModifyCategoryResponse {
+  id: string;
+}
+
+interface EditCategoryRequest {
+  token: string;
+  id: string;
+  body: Category;
+}
+
+interface DeleteCategoryRequest {
+  token: string;
+  id: string;
+}
+
+interface AddImageRequest {
+  token: string;
+  body: {
+    path?: string;
+    external_url?: string;
+    author?: string;
+    author_url?: string;
+  };
+}
+
+interface AddImageResponse {
+  id: number;
+  url: string;
+}
+
+interface AddImageToCategoryRequest {
+  token: string;
+  category: string;
+  image: number;
+  body: {
+    tags: Tag[];
+  };
+}
+
+interface OkResponse {
+  ok: boolean;
+}
 
 export const api = createApi({
   reducerPath: "api",
@@ -9,7 +58,7 @@ export const api = createApi({
   endpoints: (build) => ({
     // categories
     //
-    addCategory: build.mutation({
+    addCategory: build.mutation<ModifyCategoryResponse, AddCategoryRequest>({
       query: ({ token, body }) => ({
         url: `categories`,
         method: "POST",
@@ -20,7 +69,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    editCategory: build.mutation({
+    editCategory: build.mutation<ModifyCategoryResponse, EditCategoryRequest>({
       query: ({ id, token, body }) => ({
         url: `categories/${id}`,
         method: "PUT",
@@ -31,9 +80,9 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    deleteCategory: build.mutation({
-      query: ({ token, category }) => ({
-        url: `categories/${category}`,
+    deleteCategory: build.mutation<OkResponse, DeleteCategoryRequest>({
+      query: ({ token, id }) => ({
+        url: `categories/${id}`,
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -41,18 +90,18 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    getCategories: build.query({
+    getCategories: build.query<Category[], void>({
       query: () => `categories`,
       providesTags: ["categories"],
     }),
-    getCategory: build.query({
+    getCategory: build.query<Category, string>({
       query: (id) => `categories/${id}`,
       providesTags: ["categories"],
     }),
 
     // images
     //
-    addImage: build.mutation({
+    addImage: build.mutation<AddImageResponse, AddImageRequest>({
       query: ({ token, body }) => ({
         url: `image`,
         method: "POST",
@@ -62,7 +111,7 @@ export const api = createApi({
         body,
       }),
     }),
-    addImageToCategory: build.mutation({
+    addImageToCategory: build.mutation<OkResponse, AddImageToCategoryRequest>({
       query: ({ token, category, image, body }) => ({
         url: `categories/${category}/images/${image}`,
         method: "POST",

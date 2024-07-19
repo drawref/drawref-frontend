@@ -1,14 +1,22 @@
-import { useState, useRef, Fragment } from "react";
-import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
+import { useState } from "react";
 
 import { useGetSampleDataQuery } from "../app/apiSlice";
 import SessionCheckboxGroup from "./SessionCheckboxGroup";
-import TheLoadingModal from "../components/TheLoadingModal";
+import TheLoadingModal from "./TheLoadingModal";
+import { useAppSelector } from "../app/hooks";
 
-function AdminSampleDataBox({ onSubmit, error }) {
-  const user = useSelector((state) => state.userProfile);
-  const [uploadData, setUploadData] = useState({});
+interface UploadData {
+  [key: string]: string[];
+}
+
+interface Props {
+  onSubmit(data: any): void;
+  error?: string;
+}
+
+function AdminSampleDataBox({ onSubmit, error }: Props) {
+  const user = useAppSelector((state) => state.userProfile);
+  const [uploadData, setUploadData] = useState<UploadData>({});
   const [agreeToConditions, setAgreeToConditions] = useState(false);
 
   const { data: sampleData, isLoading: isSampleDataLoading } = useGetSampleDataQuery({ token: user.token });
@@ -29,7 +37,7 @@ function AdminSampleDataBox({ onSubmit, error }) {
   // const errorToShow = [error, otherTextErrors].join(" ").trim();
   const errorToShow = "";
 
-  const conditions =
+  const conditions: string[] =
     sampleData &&
     uploadData &&
     uploadData.images &&
@@ -44,7 +52,7 @@ function AdminSampleDataBox({ onSubmit, error }) {
           }
           return "";
         })
-        .filter((name) => !!name),
+        .filter((name: string) => !!name),
     );
 
   return (
@@ -119,9 +127,5 @@ function AdminSampleDataBox({ onSubmit, error }) {
     </>
   );
 }
-AdminSampleDataBox.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  error: PropTypes.string,
-};
 
 export default AdminSampleDataBox;

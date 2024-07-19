@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 interface SessionTagsState {
-  tags: any;
-  // tags: Map<string, Map<string, string>>,
+  tags: {
+    [key: string]: {
+      [key: string]: any;
+    };
+  };
 }
 
 const initialState: SessionTagsState = {

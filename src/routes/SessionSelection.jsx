@@ -71,8 +71,8 @@ function SessionSelection() {
                 <SessionCheckboxGroup
                   tags={category.tags}
                   onChange={(tags) => {
-                    setTags(Object.fromEntries(tags.entries()));
-                    setDebouncedTags(Object.fromEntries(tags.entries()));
+                    setTags(tags);
+                    setDebouncedTags(tags);
                   }}
                 />
               )}

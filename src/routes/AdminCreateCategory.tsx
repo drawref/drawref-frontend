@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import TheHeader from "../components/TheHeader";
@@ -6,10 +5,11 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 import AdminCategoryInfoBox from "../components/AdminCategoryInfoBox";
 
+import { useAppSelector } from "../app/hooks";
 import { useAddCategoryMutation } from "../app/apiSlice";
 
 function AdminCreateCategory() {
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   const [addCategory, { isLoading: isAddingCategory, error: categoryError }] = useAddCategoryMutation();
   const navigate = useNavigate();

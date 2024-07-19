@@ -1,15 +1,20 @@
 import { Fragment, useState } from "react";
 import { Tag } from "../types/drawref";
 
+interface CheckboxGroupData {
+  [key: string]: string[];
+}
+
 interface Props {
   tags: Tag[];
-  onChange?(newData: Map<string, string[]>): void;
+  // onChange?(newData: Map<string, string[]>): void;
+  onChange?(newData: CheckboxGroupData): void;
 }
 
 function SessionCheckboxGroup({ tags, onChange }: Props) {
-  const emptyTags = new Map<string, string[]>();
+  const emptyTags: CheckboxGroupData = {};
   for (const info of tags) {
-    emptyTags.set(info.id, []);
+    emptyTags[info.id] = [];
   }
   const [data, setData] = useState(emptyTags);
 
@@ -25,24 +30,21 @@ function SessionCheckboxGroup({ tags, onChange }: Props) {
             <input
               type="checkbox"
               id={`${info.id} ${name}`}
-              checked={data.get(info.id)?.includes(name)}
+              checked={data[info.id]?.includes(name)}
               onChange={(e) => {
                 // make copy of newData so we can freely edit it
                 //  in future without worrying about other parent using it
-                const newData = new Map<string, string[]>();
-                for (const [key, value] of data.entries()) {
-                  newData.set(key, Array.from(value));
+                const newData: CheckboxGroupData = {};
+                for (const [key, value] of Object.entries(data)) {
+                  newData[key] = Array.from(value);
                 }
 
                 if (e.target.checked) {
-                  const newArray = newData.get(info.id) || [];
+                  const newArray = newData[info.id] || [];
                   newArray.push(name);
-                  newData.set(info.id, newArray);
+                  newData[info.id] = newArray;
                 } else {
-                  newData.set(
-                    info.id,
-                    (newData.get(info.id) || []).filter((entry) => entry != name),
-                  );
+                  newData[info.id] = (newData[info.id] || []).filter((entry) => entry != name);
                 }
                 setData(newData);
 

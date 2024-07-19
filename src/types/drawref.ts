@@ -7,6 +7,7 @@ export type Tag = {
 export type Category = {
   id: string;
   name: string;
+  cover?: string;
+  cover_id?: number;
   tags: Tag[];
-  cover?: number;
 };
