@@ -65,7 +65,7 @@ function Session() {
       <div className="App z-0 bg-primary-950 text-white">
         <div
           className="absolute left-0 top-0 z-10 h-screen w-screen bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${currentImagePath})` }}
+          style={{ backgroundImage: `url(${encodeURI(currentImagePath)})` }}
           onClick={() => setShowUi(!showUi)}
         ></div>
         <SessionTimer seconds={secondsRemaining} />

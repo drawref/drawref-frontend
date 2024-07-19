@@ -183,7 +183,7 @@ function AdminEditCategory() {
                         key={img.id}
                         className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
                         data-image={img.id}
-                        style={{ backgroundImage: `url(${img.path})` }}
+                        style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
                         onClick={async (e) => {
                           try {
                             await deleteImageFromCategory({
