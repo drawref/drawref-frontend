@@ -7,12 +7,18 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 
 import { useAppSelector } from "../app/hooks";
-import { useGetCategoriesQuery, useDeleteCategoryMutation, useDeleteUnusedImagesMutation } from "../app/apiSlice";
+import {
+  useGetCategoriesQuery,
+  useDeleteCategoryMutation,
+  useDeleteUnusedImagesMutation,
+  useReorderCategoriesMutation,
+} from "../app/apiSlice";
 
 function AdminDashboard() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [deleteUnusedImages] = useDeleteUnusedImagesMutation();
+  const [reorderCategories] = useReorderCategoriesMutation();
 
   const user = useAppSelector((state) => state.userProfile);
 
@@ -84,6 +90,29 @@ function AdminDashboard() {
               }}
             >
               Delete unused images
+            </button>
+          </div>
+
+          <div className="mx-auto mt-3 flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
+            <button
+              className="block py-3 hover:bg-primary-800"
+              onClick={async (e) => {
+                if (window.confirm(`Re-order categories?`)) {
+                  try {
+                    await reorderCategories({
+                      token: user.token,
+                      body: {
+                        categories: ["poses", "faces"],
+                      },
+                    });
+                  } catch (err) {
+                    console.error(err);
+                    return;
+                  }
+                }
+              }}
+            >
+              Reorder categories
             </button>
           </div>
         </div>

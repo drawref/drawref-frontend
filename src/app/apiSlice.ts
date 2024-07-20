@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Category, Image, TagMap } from "../types/drawref";
+import { string } from "prop-types";
 
 interface AddCategoryRequest {
   token: string;
@@ -19,6 +20,13 @@ interface EditCategoryRequest {
 interface DeleteCategoryRequest {
   token: string;
   id: string;
+}
+
+interface ReorderCategoriesRequest {
+  token: string;
+  body: {
+    categories: string[];
+  };
 }
 
 interface AddImageRequest {
@@ -145,6 +153,17 @@ export const api = createApi({
     getCategory: build.query<Category, string>({
       query: (id) => `categories/${id}`,
       providesTags: ["categories"],
+    }),
+    reorderCategories: build.mutation<OkResponse, ReorderCategoriesRequest>({
+      query: ({ token, body }) => ({
+        url: `category-order`,
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["categories"],
     }),
 
     // images
@@ -273,6 +292,7 @@ export const {
   useDeleteCategoryMutation,
   useGetCategoriesQuery,
   useGetCategoryQuery,
+  useReorderCategoriesMutation,
   useAddImageMutation,
   useDeleteUnusedImagesMutation,
   useAddImageToCategoryMutation,
