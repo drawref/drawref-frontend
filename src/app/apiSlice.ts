@@ -159,6 +159,15 @@ export const api = createApi({
         body,
       }),
     }),
+    deleteUnusedImages: build.mutation<OkResponse, RequestWithToken>({
+      query: ({ token }) => ({
+        url: `image/unused`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
     addImageToCategory: build.mutation<OkResponse, AddImageToCategoryRequest>({
       query: ({ token, category, image, body }) => ({
         url: `categories/${category}/images/${image}`,
@@ -265,6 +274,7 @@ export const {
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useAddImageMutation,
+  useDeleteUnusedImagesMutation,
   useAddImageToCategoryMutation,
   useDeleteImageFromCategoryMutation,
   useGetCategoryImagesQuery,

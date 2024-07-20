@@ -7,11 +7,12 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 
 import { useAppSelector } from "../app/hooks";
-import { useGetCategoriesQuery, useDeleteCategoryMutation } from "../app/apiSlice";
+import { useGetCategoriesQuery, useDeleteCategoryMutation, useDeleteUnusedImagesMutation } from "../app/apiSlice";
 
 function AdminDashboard() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
+  const [deleteUnusedImages] = useDeleteUnusedImagesMutation();
 
   const user = useAppSelector((state) => state.userProfile);
 
@@ -64,6 +65,26 @@ function AdminDashboard() {
                 Add sample data
               </Link>
             )}
+          </div>
+
+          <div className="mx-auto mt-6 flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
+            <button
+              className="block py-3 hover:bg-primary-800"
+              onClick={async (e) => {
+                if (window.confirm(`Delete unused images?`)) {
+                  try {
+                    await deleteUnusedImages({
+                      token: user.token,
+                    });
+                  } catch (err) {
+                    console.error(err);
+                    return;
+                  }
+                }
+              }}
+            >
+              Delete unused images
+            </button>
           </div>
         </div>
         <TheFooter />
