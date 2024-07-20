@@ -1,12 +1,12 @@
 import { useState, useRef } from "react";
-import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
 import slugify from "slugify";
 
+import { useAppSelector } from "../app/hooks";
 import { useAddImageMutation, useGetSampleDataQuery } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
+import { Category, Tag } from "../types/drawref";
 
-function stringifyTags(tagsList) {
+function stringifyTags(tagsList: Tag[]): string {
   var tagStrings = [];
 
   for (const info of tagsList) {
@@ -19,12 +19,12 @@ function stringifyTags(tagsList) {
   return tagStrings.join("\n");
 }
 
-function parseTags(tagsList) {
-  const tags = [];
+function parseTags(tagsList: string): Tag[] {
+  const tags: Tag[] = [];
   for (const line of tagsList.split("\n")) {
     var vals = line.split(":");
 
-    var key = vals.shift();
+    var key = vals.shift() || "";
     var id = slugify(key, "_");
     // advanced key name
     if (key.includes(">")) {
@@ -49,26 +49,37 @@ function parseTags(tagsList) {
   return tags;
 }
 
-function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }) {
-  const user = useSelector((state) => state.userProfile);
+interface Props {
+  name?: string;
+  coverId?: number;
+  coverUrl?: string;
+  tags?: Tag[];
+  onSubmit(data: Category): void;
+  error: string;
+}
+
+function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }: Props) {
+  const user = useAppSelector((state) => state.userProfile);
 
   const [cName, setCName] = useState(name || "");
   const [cCoverId, setCCoverId] = useState(coverId);
   const [cCoverUrl, setCCoverUrl] = useState(coverUrl || "");
   const [cTags, setCTags] = useState(stringifyTags(tags || []));
 
-  const coverRef = useRef(null);
+  const coverRef = useRef<HTMLInputElement>(null);
 
   const { data: sampleData, isLoading: isSampleDataLoading } = useGetSampleDataQuery({ token: user.token });
   const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
   const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
   const categoryTags = sampleData && sampleData.categories;
 
-  const otherTextErrors = [addImageError, uploadImageError].filter((e) => e && e.data).map((e) => e.data.error);
+  const otherTextErrors = [addImageError || null, uploadImageError || null]
+    .filter((e: any) => e && e.data)
+    .map((e: any) => e.data.error);
   const errorToShow = [error, otherTextErrors].join(" ").trim();
 
-  function applyTagTemplate(key) {
-    const value = categoryTags.filter((info) => info.name === key)[0];
+  function applyTagTemplate(key: string) {
+    const value = categoryTags && categoryTags.filter((info) => info.name === key)[0];
     if (value) {
       // note, better way to do things would be to track whether the category
       //  name has been changed from a default/template value or left default.
@@ -77,7 +88,7 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
 
       // if tags has been manually modified, we should ask for confirmation
       //  before just replacing all the existing values like this.
-      setCTags(value.tags.map((entry) => `${entry.name}: ${entry.values.join(", ")}`).join("\n"));
+      setCTags(value.tags.map((entry: Tag) => `${entry.name}: ${entry.values.join(", ")}`).join("\n"));
     }
   }
 
@@ -87,15 +98,15 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
       onSubmit={async (e) => {
         e.preventDefault();
 
-        const data = {
+        const data: Category = {
           id: slugify(cName.trim(), "_").toLowerCase(),
           name: cName.trim(),
           tags: parseTags(cTags),
         };
 
         if (cCoverUrl !== "") {
-          data.cover = cCoverId;
-        } else if (coverRef.current.files.length > 0) {
+          data.cover_id = cCoverId;
+        } else if (coverRef.current?.files && coverRef.current?.files?.length > 0) {
           try {
             const fData = new FormData();
             fData.append("image", coverRef.current.files[0]);
@@ -110,8 +121,11 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
                   author: "",
                 },
               });
+              if ("error" in addResult) {
+                throw addResult.error;
+              }
 
-              data.cover = addResult.data.id;
+              data.cover_id = addResult.data.id;
               setCCoverId(addResult.data.id);
               setCCoverUrl(addResult.data.url);
             }
@@ -134,7 +148,7 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
             <img src={cCoverUrl} className="h-10" />
             <button
               onClick={() => {
-                setCCoverId(undefined);
+                setCCoverId(-1);
                 setCCoverUrl("");
               }}
             >
@@ -177,11 +191,12 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
             onChange={(e) => applyTagTemplate(e.target.value)}
           >
             <option value="">-- Select --</option>
-            {categoryTags.map((info) => (
-              <option key={info.name} value={info.name}>
-                {info.name}
-              </option>
-            ))}
+            {categoryTags &&
+              categoryTags.map((info) => (
+                <option key={info.name} value={info.name}>
+                  {info.name}
+                </option>
+              ))}
           </select>
         )}
       </div>
@@ -200,13 +215,5 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
     </form>
   );
 }
-AdminCategoryInfoBox.propTypes = {
-  name: PropTypes.string,
-  coverId: PropTypes.number,
-  coverUrl: PropTypes.string,
-  tags: PropTypes.array,
-  onSubmit: PropTypes.func.isRequired,
-  error: PropTypes.string,
-};
 
 export default AdminCategoryInfoBox;

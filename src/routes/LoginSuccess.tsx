@@ -1,24 +1,24 @@
 import { useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 
 import TheLoadingModal from "../components/TheLoadingModal";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import bg from "../assets/login-bg.jpg";
 
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { useGetUserQuery } from "../app/apiSlice";
 import { login } from "../app/userProfileSlice";
 import { useEffect } from "react";
 
 function LoginSuccess() {
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   const [searchBarParams, setSearchBarParams] = useSearchParams();
-  const token = searchBarParams.get("token");
+  const token = searchBarParams.get("token") || "";
 
   const { data: userInfo, isLoading } = useGetUserQuery({ token });
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // token is valid, remember it
   useEffect(() => {

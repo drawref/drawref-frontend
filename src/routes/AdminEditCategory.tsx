@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
@@ -8,6 +7,7 @@ import TheLoadingModal from "../components/TheLoadingModal";
 import AdminCategoryInfoBox from "../components/AdminCategoryInfoBox";
 import SessionCheckboxGroup from "../components/SessionCheckboxGroup";
 
+import { useAppSelector } from "../app/hooks";
 import {
   useGetCategoryQuery,
   useAddImageMutation,
@@ -17,10 +17,21 @@ import {
   useDeleteImageFromCategoryMutation,
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
+import NotFound from "./NotFound";
+import { TagMap } from "../types/drawref";
+
+type Params = {
+  categoryId: string;
+};
 
 function AdminEditCategory() {
-  const user = useSelector((state) => state.userProfile);
-  const { categoryId } = useParams();
+  const user = useAppSelector((state) => state.userProfile);
+
+  const { categoryId } = useParams<Params>();
+  if (!categoryId) {
+    return <NotFound />;
+  }
+
   const { data: categoryData, isLoading } = useGetCategoryQuery(categoryId);
   const {
     data: categoryImages,
@@ -28,10 +39,10 @@ function AdminEditCategory() {
     error: getCategoryImagesError,
   } = useGetCategoryImagesQuery({ category: categoryId, page: 0 });
 
-  const [uploadTags, setUploadTags] = useState({});
+  const [uploadTags, setUploadTags] = useState<TagMap>({});
   const [uploadAuthorName, setUploadAuthorName] = useState("");
   const [uploadAuthorUrl, setUploadAuthorUrl] = useState("");
-  const [uploadFiles, setUploadFiles] = useState([]);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
   const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
   const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
@@ -40,7 +51,7 @@ function AdminEditCategory() {
     useAddImageToCategoryMutation();
   const [deleteImageFromCategory] = useDeleteImageFromCategoryMutation();
 
-  const errorToShow = categoryError ? categoryError.data.error : "";
+  const errorToShow = categoryError ? "Couldn't edit category" : "";
 
   return (
     <>
@@ -74,10 +85,7 @@ function AdminEditCategory() {
                 <div className="box-border flex max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
                   <h2 className="text-xl font-medium">Upload Images</h2>
                   <div className="grid grid-cols-4 gap-x-4 gap-y-3">
-                    <SessionCheckboxGroup
-                      tags={categoryData.tags}
-                      onChange={(tags) => setUploadTags(Object.fromEntries(tags.entries()))}
-                    />
+                    <SessionCheckboxGroup tags={categoryData.tags} onChange={(tags) => setUploadTags(tags)} />
                   </div>
                   <div className="grid grid-cols-4 gap-x-4 gap-y-3">
                     <label htmlFor="author-name" className="text-lg font-medium">
@@ -107,8 +115,15 @@ function AdminEditCategory() {
                     onChange={async (e) => {
                       // upload
                       setUploadFiles((state) => {
+                        if (e.target.files === null) {
+                          return state;
+                        }
                         return state.concat([...e.target.files]);
                       });
+
+                      if (e.target.files === null) {
+                        return;
+                      }
 
                       for (const file of [...e.target.files]) {
                         try {
@@ -127,6 +142,9 @@ function AdminEditCategory() {
                                 author_url: uploadAuthorUrl,
                               },
                             });
+                            if ("error" in addResult) {
+                              throw addResult.error;
+                            }
 
                             // add image to category
                             const addToCatResult = await addImageToCategory({
@@ -137,6 +155,9 @@ function AdminEditCategory() {
                                 tags: uploadTags,
                               },
                             });
+                            if ("error" in addToCatResult) {
+                              throw addToCatResult.error;
+                            }
                           }
                         } catch (err) {
                           console.error(err);
@@ -158,26 +179,30 @@ function AdminEditCategory() {
                 <div className="box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
                   <h2 className="text-xl font-medium">Images</h2>
                   <div className="flex flex-wrap items-center justify-center gap-4">
-                    {categoryImages.map((img) => (
-                      <button
-                        key={img.id}
-                        className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
-                        data-image={img.id}
-                        style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
-                        onClick={async (e) => {
-                          try {
-                            await deleteImageFromCategory({
-                              category: categoryId,
-                              image: e.target.dataset.image,
-                              token: user.token,
-                            });
-                          } catch (err) {
-                            console.error(err);
-                            return;
-                          }
-                        }}
-                      ></button>
-                    ))}
+                    {categoryImages &&
+                      categoryImages.map((img) => (
+                        <button
+                          key={img.id}
+                          className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
+                          data-image={img.id}
+                          style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
+                          onClick={async (e) => {
+                            try {
+                              const imageId = (e.target as HTMLElement).dataset.image;
+                              if (imageId) {
+                                await deleteImageFromCategory({
+                                  category: categoryId,
+                                  image: parseInt(imageId),
+                                  token: user.token,
+                                });
+                              }
+                            } catch (err) {
+                              console.error(err);
+                              return;
+                            }
+                          }}
+                        ></button>
+                      ))}
                   </div>
                 </div>
               )}

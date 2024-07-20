@@ -1,4 +1,101 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Category, Image, TagMap } from "../types/drawref";
+
+interface AddCategoryRequest {
+  token: string;
+  body: Category;
+}
+
+interface ModifyCategoryResponse {
+  id: string;
+}
+
+interface EditCategoryRequest {
+  token: string;
+  id: string;
+  body: Category;
+}
+
+interface DeleteCategoryRequest {
+  token: string;
+  id: string;
+}
+
+interface AddImageRequest {
+  token: string;
+  body: {
+    path?: string;
+    external_url?: string;
+    author?: string;
+    author_url?: string;
+  };
+}
+
+interface AddImageResponse {
+  id: number;
+  url: string;
+}
+
+interface AddImageToCategoryRequest {
+  token: string;
+  category: string;
+  image: number;
+  body: {
+    tags: TagMap;
+  };
+}
+
+interface DeleteImageFromCategoryRequest {
+  token: string;
+  category: string;
+  image: number;
+}
+
+interface GetCategoryImagesRequest {
+  category: string;
+  page: number;
+}
+
+interface GetSessionRequest {
+  category: string;
+  tags: TagMap;
+}
+
+interface GetAvailableImageCountResponse {
+  images: number;
+}
+
+interface RequestWithToken {
+  token: string;
+}
+
+interface GetUserResponse {
+  name: string;
+  admin: boolean;
+  exp: string;
+}
+
+interface GetSampleDataResponse {
+  categories: Category[];
+  images: {
+    author: string;
+    author_url: string;
+    requirement: string;
+    image_count: number;
+  }[];
+}
+
+interface AddSampleDataRequest {
+  token: string;
+  body: {
+    categories: string[];
+    images: string[];
+  };
+}
+
+interface OkResponse {
+  ok: boolean;
+}
 
 export const api = createApi({
   reducerPath: "api",
@@ -9,7 +106,7 @@ export const api = createApi({
   endpoints: (build) => ({
     // categories
     //
-    addCategory: build.mutation({
+    addCategory: build.mutation<ModifyCategoryResponse, AddCategoryRequest>({
       query: ({ token, body }) => ({
         url: `categories`,
         method: "POST",
@@ -20,7 +117,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    editCategory: build.mutation({
+    editCategory: build.mutation<ModifyCategoryResponse, EditCategoryRequest>({
       query: ({ id, token, body }) => ({
         url: `categories/${id}`,
         method: "PUT",
@@ -31,9 +128,9 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    deleteCategory: build.mutation({
-      query: ({ token, category }) => ({
-        url: `categories/${category}`,
+    deleteCategory: build.mutation<OkResponse, DeleteCategoryRequest>({
+      query: ({ token, id }) => ({
+        url: `categories/${id}`,
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -41,18 +138,18 @@ export const api = createApi({
       }),
       invalidatesTags: ["categories"],
     }),
-    getCategories: build.query({
+    getCategories: build.query<Category[], void>({
       query: () => `categories`,
       providesTags: ["categories"],
     }),
-    getCategory: build.query({
+    getCategory: build.query<Category, string>({
       query: (id) => `categories/${id}`,
       providesTags: ["categories"],
     }),
 
     // images
     //
-    addImage: build.mutation({
+    addImage: build.mutation<AddImageResponse, AddImageRequest>({
       query: ({ token, body }) => ({
         url: `image`,
         method: "POST",
@@ -62,7 +159,7 @@ export const api = createApi({
         body,
       }),
     }),
-    addImageToCategory: build.mutation({
+    addImageToCategory: build.mutation<OkResponse, AddImageToCategoryRequest>({
       query: ({ token, category, image, body }) => ({
         url: `categories/${category}/images/${image}`,
         method: "POST",
@@ -73,7 +170,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
-    deleteImageFromCategory: build.mutation({
+    deleteImageFromCategory: build.mutation<OkResponse, DeleteImageFromCategoryRequest>({
       query: ({ token, category, image }) => ({
         url: `categories/${category}/images/${image}`,
         method: "DELETE",
@@ -83,7 +180,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
-    getCategoryImages: build.query({
+    getCategoryImages: build.query<Image[], GetCategoryImagesRequest>({
       query: ({ category, page }) => ({
         url: `categories/${category}/images`,
         method: "GET",
@@ -93,7 +190,7 @@ export const api = createApi({
       }),
       providesTags: ["category-images"],
     }),
-    getImageSources: build.query({
+    getImageSources: build.query<string[][], void>({
       query: () => ({
         url: `image/sources`,
         method: "GET",
@@ -102,22 +199,22 @@ export const api = createApi({
 
     // sessions
     //
-    getSession: build.query({
-      query: ({ categoryId, tags }) => ({
+    getSession: build.query<Image[], GetSessionRequest>({
+      query: ({ category, tags }) => ({
         url: `session`,
         method: "GET",
         params: {
-          category: categoryId,
+          category: category,
           tags: JSON.stringify(tags),
         },
       }),
     }),
-    getAvailableImageCount: build.query({
-      query: ({ categoryId, tags }) => ({
+    getAvailableImageCount: build.query<GetAvailableImageCountResponse, GetSessionRequest>({
+      query: ({ category, tags }) => ({
         url: `session/count`,
         method: "GET",
         params: {
-          category: categoryId,
+          category: category,
           tags: JSON.stringify(tags),
         },
       }),
@@ -126,7 +223,7 @@ export const api = createApi({
 
     // user data
     //
-    getUser: build.query({
+    getUser: build.query<GetUserResponse, RequestWithToken>({
       query: ({ token }) => ({
         url: `user`,
         method: "GET",
@@ -138,7 +235,7 @@ export const api = createApi({
 
     // sample data
     //
-    getSampleData: build.query({
+    getSampleData: build.query<GetSampleDataResponse, RequestWithToken>({
       query: ({ token }) => ({
         url: `samples`,
         method: "GET",
@@ -147,7 +244,7 @@ export const api = createApi({
         },
       }),
     }),
-    addSampleData: build.mutation({
+    addSampleData: build.mutation<OkResponse, AddSampleDataRequest>({
       query: ({ token, body }) => ({
         url: `samples/import`,
         method: "POST",

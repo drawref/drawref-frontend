@@ -9,6 +9,7 @@ import SessionTimer from "../components/SessionTimer";
 import { useGetSessionQuery } from "../app/apiSlice";
 import { staticImageTimes, classLengths } from "../app/sessionTimes";
 import { useTimer } from "../app/useTimer";
+import { Image } from "../types/drawref";
 
 function Session() {
   const navigate = useNavigate();
@@ -16,38 +17,46 @@ function Session() {
   const [showUi, setShowUi] = useState(true);
 
   // clicking buttons from timer actions
-  const stopButtonRef = useRef(null);
-  const nextButtonRef = useRef(null);
+  const stopButtonRef = useRef<HTMLButtonElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   // working session data
   const [onApiImages, setOnApiImages] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
-  const [historyImages, setHistoryImages] = useState([]);
+  const [historyImages, setHistoryImages] = useState<Image[]>([]);
 
   // timer data
   const [timerRunning, setTimerRunning] = useState(true);
   const timing = JSON.parse(searchBarParams.get("timing") || "{}");
-  var defaultSecondsList = [];
+  var defaultSecondsList: number[] = [];
   // the [].concat() stops useTimer from modifying the base lists
   if (timing.timingType === "static") {
-    defaultSecondsList = [].concat([staticImageTimes.filter((info) => info.value === timing.staticTime)[0].seconds]);
+    defaultSecondsList = defaultSecondsList.concat([
+      staticImageTimes.filter((info) => info.value === timing.staticTime)[0].seconds,
+    ]);
   } else {
-    defaultSecondsList = [].concat(classLengths.filter((info) => info.value === timing.classLength)[0].intervals);
+    defaultSecondsList = defaultSecondsList.concat(
+      classLengths.filter((info) => info.value === timing.classLength)[0].intervals,
+    );
   }
   const { secondsRemaining } = useTimer(defaultSecondsList, timerRunning, (atEndOfTime) => {
     console.log("is:", atEndOfTime, timing.timingType);
     if (atEndOfTime && timing.timingType === "class") {
-      stopButtonRef.current.click();
+      if (stopButtonRef.current) {
+        stopButtonRef.current.click();
+      }
     } else {
-      nextButtonRef.current.click();
+      if (nextButtonRef.current) {
+        nextButtonRef.current.click();
+      }
     }
   });
 
   // session API info
-  const categoryId = searchBarParams.get("category") || "";
+  const category = searchBarParams.get("category") || "";
   const tags = JSON.parse(searchBarParams.get("tags") || "{}");
 
-  const { data: session, isLoading, refetch } = useGetSessionQuery({ categoryId, tags });
+  const { data: session, isLoading, refetch } = useGetSessionQuery({ category, tags });
   useEffect(() => {
     // grab brand new set of images when loading into a fresh session
     refetch();
@@ -86,6 +95,10 @@ function Session() {
                 type="button"
                 className="py-2 pl-4 pr-1.5"
                 onClick={() => {
+                  if (!session) {
+                    return;
+                  }
+
                   if (currentImage === 0) {
                     if (onApiImages && historyImages.length > 0) {
                       setOnApiImages(false);
@@ -104,7 +117,7 @@ function Session() {
               <button
                 type="button"
                 className="px-1.5 py-2"
-                onClick={() => navigate(`/c/${categoryId}`)}
+                onClick={() => navigate(`/c/${category}`)}
                 ref={stopButtonRef}
               >
                 <Icon path={mdiStop} title="Stop session" size={1.2} className="text-white" />
@@ -119,7 +132,7 @@ function Session() {
                 className="py-2 pl-1.5 pr-3"
                 ref={nextButtonRef}
                 onClick={() => {
-                  if (onApiImages && currentImage === session.length - 1) {
+                  if (onApiImages && session && currentImage === session.length - 1) {
                     console.log("setting new history value");
                     setHistoryImages(historyImages.concat(session));
                     refetch();

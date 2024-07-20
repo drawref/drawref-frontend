@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import TheHeader from "../components/TheHeader";
@@ -6,10 +5,11 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 import AdminSampleDataBox from "../components/AdminSampleDataBox";
 
+import { useAppSelector } from "../app/hooks";
 import { useAddSampleDataMutation } from "../app/apiSlice";
 
 function AdminAddSampleData() {
-  const user = useSelector((state) => state.userProfile);
+  const user = useAppSelector((state) => state.userProfile);
 
   const [addSampleData, { isLoading: isAddingSampleData, error: sampleDataError }] = useAddSampleDataMutation();
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function AdminAddSampleData() {
             <AdminSampleDataBox
               onSubmit={async (data) => {
                 try {
-                  const result = await addSampleData({ token: user.token, body: data }).unwrap();
+                  await addSampleData({ token: user.token, body: data });
                   // created successfully, move to the new category edit page
                   navigate(`/admin/`);
                 } catch (err) {
