@@ -11,6 +11,10 @@ function TheFooter() {
             About
           </Link>
           {" · "}
+          <Link to="/credits" className="text-[#d2ebf4]">
+            Credits
+          </Link>
+          {" · "}
           <a href="https://github.com/DanielOaks/drawref-frontend" className="text-[#d2ebf4]">
             Source Code
           </a>
