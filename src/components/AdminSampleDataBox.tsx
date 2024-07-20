@@ -4,6 +4,7 @@ import { useGetSampleDataQuery } from "../app/apiSlice";
 import SessionCheckboxGroup from "./SessionCheckboxGroup";
 import TheLoadingModal from "./TheLoadingModal";
 import { useAppSelector } from "../app/hooks";
+import { Tag } from "../types/drawref";
 
 interface UploadData {
   [key: string]: string[];
@@ -20,40 +21,43 @@ function AdminSampleDataBox({ onSubmit, error }: Props) {
   const [agreeToConditions, setAgreeToConditions] = useState(false);
 
   const { data: sampleData, isLoading: isSampleDataLoading } = useGetSampleDataQuery({ token: user.token });
-  const checkboxDefaultData = sampleData && [
-    {
-      id: "categories",
-      name: "Categories",
-      values: sampleData.categories.map((cat) => cat.name),
-    },
-    {
-      id: "images",
-      name: "Images",
-      values: sampleData.images.map((img) => img.author),
-    },
-  ];
+  const checkboxDefaultData: Tag[] =
+    (sampleData && [
+      {
+        id: "categories",
+        name: "Categories",
+        values: sampleData.categories.map((cat) => cat.name),
+      },
+      {
+        id: "images",
+        name: "Images",
+        values: sampleData.images.map((img) => img.author),
+      },
+    ]) ||
+    [];
 
   // const otherTextErrors = [addImageError, uploadImageError].filter((e) => e && e.data).map((e) => e.data.error);
   // const errorToShow = [error, otherTextErrors].join(" ").trim();
   const errorToShow = "";
 
   const conditions: string[] =
-    sampleData &&
-    uploadData &&
-    uploadData.images &&
-    (uploadData.images.length > 0
-      ? ["You will keep the author name and link attached to each sample image."]
-      : []
-    ).concat(
-      sampleData.images
-        .map((img) => {
-          if (uploadData.images.indexOf(img.author) !== -1) {
-            return img.requirement;
-          }
-          return "";
-        })
-        .filter((name: string) => !!name),
-    );
+    (sampleData &&
+      uploadData &&
+      uploadData.images &&
+      (uploadData.images.length > 0
+        ? ["You will keep the author name and link attached to each sample image."]
+        : []
+      ).concat(
+        sampleData.images
+          .map((img) => {
+            if (uploadData.images.indexOf(img.author) !== -1) {
+              return img.requirement;
+            }
+            return "";
+          })
+          .filter((name: string) => !!name),
+      )) ||
+    [];
 
   return (
     <>
@@ -82,10 +86,7 @@ function AdminSampleDataBox({ onSubmit, error }: Props) {
           <>
             <h2 className="text-xl font-medium">Import</h2>
             <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-4">
-              <SessionCheckboxGroup
-                tags={checkboxDefaultData}
-                onChange={(data) => setUploadData(Object.fromEntries(data.entries()))}
-              />
+              <SessionCheckboxGroup tags={checkboxDefaultData} onChange={(data) => setUploadData(data)} />
             </div>
 
             {conditions && conditions.length > 0 && (

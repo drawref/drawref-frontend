@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Category, Tag } from "../types/drawref";
+import { Category, Image, TagMap } from "../types/drawref";
 
 interface AddCategoryRequest {
   token: string;
@@ -41,7 +41,55 @@ interface AddImageToCategoryRequest {
   category: string;
   image: number;
   body: {
-    tags: Tag[];
+    tags: TagMap;
+  };
+}
+
+interface DeleteImageFromCategoryRequest {
+  token: string;
+  category: string;
+  image: number;
+}
+
+interface GetCategoryImagesRequest {
+  category: string;
+  page: number;
+}
+
+interface GetSessionRequest {
+  category: string;
+  tags: TagMap;
+}
+
+interface GetAvailableImageCountResponse {
+  images: number;
+}
+
+interface RequestWithToken {
+  token: string;
+}
+
+interface GetUserResponse {
+  name: string;
+  admin: boolean;
+  exp: string;
+}
+
+interface GetSampleDataResponse {
+  categories: Category[];
+  images: {
+    author: string;
+    author_url: string;
+    requirement: string;
+    image_count: number;
+  }[];
+}
+
+interface AddSampleDataRequest {
+  token: string;
+  body: {
+    categories: string[];
+    images: string[];
   };
 }
 
@@ -122,7 +170,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
-    deleteImageFromCategory: build.mutation({
+    deleteImageFromCategory: build.mutation<OkResponse, DeleteImageFromCategoryRequest>({
       query: ({ token, category, image }) => ({
         url: `categories/${category}/images/${image}`,
         method: "DELETE",
@@ -132,7 +180,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
-    getCategoryImages: build.query({
+    getCategoryImages: build.query<Image[], GetCategoryImagesRequest>({
       query: ({ category, page }) => ({
         url: `categories/${category}/images`,
         method: "GET",
@@ -142,7 +190,7 @@ export const api = createApi({
       }),
       providesTags: ["category-images"],
     }),
-    getImageSources: build.query({
+    getImageSources: build.query<string[][], void>({
       query: () => ({
         url: `image/sources`,
         method: "GET",
@@ -151,22 +199,22 @@ export const api = createApi({
 
     // sessions
     //
-    getSession: build.query({
-      query: ({ categoryId, tags }) => ({
+    getSession: build.query<Image[], GetSessionRequest>({
+      query: ({ category, tags }) => ({
         url: `session`,
         method: "GET",
         params: {
-          category: categoryId,
+          category: category,
           tags: JSON.stringify(tags),
         },
       }),
     }),
-    getAvailableImageCount: build.query({
-      query: ({ categoryId, tags }) => ({
+    getAvailableImageCount: build.query<GetAvailableImageCountResponse, GetSessionRequest>({
+      query: ({ category, tags }) => ({
         url: `session/count`,
         method: "GET",
         params: {
-          category: categoryId,
+          category: category,
           tags: JSON.stringify(tags),
         },
       }),
@@ -175,7 +223,7 @@ export const api = createApi({
 
     // user data
     //
-    getUser: build.query({
+    getUser: build.query<GetUserResponse, RequestWithToken>({
       query: ({ token }) => ({
         url: `user`,
         method: "GET",
@@ -187,7 +235,7 @@ export const api = createApi({
 
     // sample data
     //
-    getSampleData: build.query({
+    getSampleData: build.query<GetSampleDataResponse, RequestWithToken>({
       query: ({ token }) => ({
         url: `samples`,
         method: "GET",
@@ -196,7 +244,7 @@ export const api = createApi({
         },
       }),
     }),
-    addSampleData: build.mutation({
+    addSampleData: build.mutation<OkResponse, AddSampleDataRequest>({
       query: ({ token, body }) => ({
         url: `samples/import`,
         method: "POST",

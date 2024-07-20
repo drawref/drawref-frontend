@@ -25,7 +25,7 @@ function AdminAddSampleData() {
             <AdminSampleDataBox
               onSubmit={async (data) => {
                 try {
-                  const result = await addSampleData({ token: user.token, body: data }).unwrap();
+                  await addSampleData({ token: user.token, body: data });
                   // created successfully, move to the new category edit page
                   navigate(`/admin/`);
                 } catch (err) {

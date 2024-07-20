@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-function startTimer(secondsRemaining, secondsList, setSecondsList, setSecondsRemaining, onTimeEnded) {
+function startTimer(
+  secondsRemaining: number,
+  secondsList: number[],
+  setSecondsList: Dispatch<SetStateAction<number[]>>,
+  setSecondsRemaining: Dispatch<SetStateAction<number>>,
+  onTimeEnded: (atEndOfTime: boolean) => void,
+) {
   let currentSecs = secondsRemaining;
   const currentTimerInterval = setInterval(() => {
     setSecondsRemaining(currentSecs - 1);
@@ -23,7 +29,7 @@ function startTimer(secondsRemaining, secondsList, setSecondsList, setSecondsRem
   return currentTimerInterval;
 }
 
-export function useTimer(secondsList, running, onTimeEnded) {
+export function useTimer(secondsList: number[], running: boolean, onTimeEnded: (atEndOfTime: boolean) => void) {
   secondsList.push(secondsList[secondsList.length - 1]);
   const [secondsRemaining, setSecondsRemaining] = useState(secondsList[0]);
   const [currentSecondsList, setCurrentSecondsList] = useState(secondsList);

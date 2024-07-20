@@ -14,7 +14,7 @@ function AdminCreateCategory() {
   const [addCategory, { isLoading: isAddingCategory, error: categoryError }] = useAddCategoryMutation();
   const navigate = useNavigate();
 
-  const errorToShow = categoryError ? categoryError.data.error : "";
+  const errorToShow = categoryError ? "Could not create category" : "";
 
   return (
     <>

@@ -2,12 +2,15 @@ import { useState } from "react";
 
 // Only set state after `ms` milliseconds have passed.
 // This can be used to reduce API calls or other changes.
-export function useDebouncedState(initialState: any, ms: number) {
-  const [value, setValueDirectly] = useState(initialState);
+export function useDebouncedState<Type>(
+  initialState: Type,
+  ms: number,
+): [Type, (newValueOrFunc: Type) => void, boolean] {
+  const [value, setValueDirectly] = useState<Type>(initialState);
   const [isWaiting, setIsWaiting] = useState(false);
 
   var timer: NodeJS.Timeout;
-  const setValue = (newValueOrFunc: any) => {
+  const setValue = (newValueOrFunc: Type) => {
     setIsWaiting(true);
     clearTimeout(timer);
     timer = setTimeout(() => {

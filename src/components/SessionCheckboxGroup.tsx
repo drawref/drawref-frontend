@@ -1,18 +1,13 @@
 import { Fragment, useState } from "react";
-import { Tag } from "../types/drawref";
-
-interface CheckboxGroupData {
-  [key: string]: string[];
-}
+import { Tag, TagMap } from "../types/drawref";
 
 interface Props {
   tags: Tag[];
-  // onChange?(newData: Map<string, string[]>): void;
-  onChange?(newData: CheckboxGroupData): void;
+  onChange?(newData: TagMap): void;
 }
 
 function SessionCheckboxGroup({ tags, onChange }: Props) {
-  const emptyTags: CheckboxGroupData = {};
+  const emptyTags: TagMap = {};
   for (const info of tags) {
     emptyTags[info.id] = [];
   }
@@ -34,7 +29,7 @@ function SessionCheckboxGroup({ tags, onChange }: Props) {
               onChange={(e) => {
                 // make copy of newData so we can freely edit it
                 //  in future without worrying about other parent using it
-                const newData: CheckboxGroupData = {};
+                const newData: TagMap = {};
                 for (const [key, value] of Object.entries(data)) {
                   newData[key] = Array.from(value);
                 }

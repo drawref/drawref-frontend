@@ -79,7 +79,7 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
   const errorToShow = [error, otherTextErrors].join(" ").trim();
 
   function applyTagTemplate(key: string) {
-    const value = categoryTags.filter((info) => info.name === key)[0];
+    const value = categoryTags && categoryTags.filter((info) => info.name === key)[0];
     if (value) {
       // note, better way to do things would be to track whether the category
       //  name has been changed from a default/template value or left default.
@@ -105,7 +105,7 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
         };
 
         if (cCoverUrl !== "") {
-          data.cover = cCoverId;
+          data.cover_id = cCoverId;
         } else if (coverRef.current?.files && coverRef.current?.files?.length > 0) {
           try {
             const fData = new FormData();
@@ -121,8 +121,11 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
                   author: "",
                 },
               });
+              if ("error" in addResult) {
+                throw addResult.error;
+              }
 
-              data.cover = addResult.data.id;
+              data.cover_id = addResult.data.id;
               setCCoverId(addResult.data.id);
               setCCoverUrl(addResult.data.url);
             }
@@ -188,11 +191,12 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
             onChange={(e) => applyTagTemplate(e.target.value)}
           >
             <option value="">-- Select --</option>
-            {categoryTags.map((info) => (
-              <option key={info.name} value={info.name}>
-                {info.name}
-              </option>
-            ))}
+            {categoryTags &&
+              categoryTags.map((info) => (
+                <option key={info.name} value={info.name}>
+                  {info.name}
+                </option>
+              ))}
           </select>
         )}
       </div>

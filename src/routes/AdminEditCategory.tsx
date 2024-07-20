@@ -18,6 +18,7 @@ import {
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 import NotFound from "./NotFound";
+import { TagMap } from "../types/drawref";
 
 type Params = {
   categoryId: string;
@@ -38,7 +39,7 @@ function AdminEditCategory() {
     error: getCategoryImagesError,
   } = useGetCategoryImagesQuery({ category: categoryId, page: 0 });
 
-  const [uploadTags, setUploadTags] = useState({});
+  const [uploadTags, setUploadTags] = useState<TagMap>({});
   const [uploadAuthorName, setUploadAuthorName] = useState("");
   const [uploadAuthorUrl, setUploadAuthorUrl] = useState("");
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
@@ -178,26 +179,30 @@ function AdminEditCategory() {
                 <div className="box-border flex w-[28em] max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-4 py-6">
                   <h2 className="text-xl font-medium">Images</h2>
                   <div className="flex flex-wrap items-center justify-center gap-4">
-                    {categoryImages.map((img) => (
-                      <button
-                        key={img.id}
-                        className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
-                        data-image={img.id}
-                        style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
-                        onClick={async (e) => {
-                          try {
-                            await deleteImageFromCategory({
-                              category: categoryId,
-                              image: (e.target as HTMLElement).dataset.image,
-                              token: user.token,
-                            });
-                          } catch (err) {
-                            console.error(err);
-                            return;
-                          }
-                        }}
-                      ></button>
-                    ))}
+                    {categoryImages &&
+                      categoryImages.map((img) => (
+                        <button
+                          key={img.id}
+                          className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
+                          data-image={img.id}
+                          style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
+                          onClick={async (e) => {
+                            try {
+                              const imageId = (e.target as HTMLElement).dataset.image;
+                              if (imageId) {
+                                await deleteImageFromCategory({
+                                  category: categoryId,
+                                  image: parseInt(imageId),
+                                  token: user.token,
+                                });
+                              }
+                            } catch (err) {
+                              console.error(err);
+                              return;
+                            }
+                          }}
+                        ></button>
+                      ))}
                   </div>
                 </div>
               )}
