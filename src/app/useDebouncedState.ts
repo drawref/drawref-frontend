@@ -9,7 +9,7 @@ export function useDebouncedState<Type>(
   const [value, setValueDirectly] = useState<Type>(initialState);
   const [isWaiting, setIsWaiting] = useState(false);
 
-  var timer: NodeJS.Timeout;
+  var timer: ReturnType<typeof setTimeout>;
   const setValue = (newValueOrFunc: Type) => {
     setIsWaiting(true);
     clearTimeout(timer);

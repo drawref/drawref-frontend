@@ -8,7 +8,8 @@ COPY package.json yarn.lock ./
 RUN yarn
 
 # copy other files
-COPY tailwind.config.js docker/startup.sh ./
+COPY *.ts *.js *.json docker/startup.sh ./
+COPY index.html ./
 COPY public ./public
 COPY src ./src
 

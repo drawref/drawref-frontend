@@ -12,7 +12,7 @@ interface UploadImageResponse {
 export const upload = createApi({
   reducerPath: "upload",
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_DRAWREF_UPLOAD,
+    baseUrl: import.meta.env.VITE_DRAWREF_UPLOAD,
   }),
   endpoints: (build) => ({
     uploadImage: build.mutation<UploadImageResponse, UploadImageRequest>({

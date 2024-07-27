@@ -8,8 +8,8 @@ See the [planning document](https://github.com/DanielOaks/drawref-backend/blob/m
 
 You can configure the frontend through these environment variables:
 
-- `REACT_APP_DRAWREF_API`: The backend address, with `/api/` at the end.
-- `REACT_APP_DRAWREF_UPLOAD`: The backend address, with `/upload/` at the end.
+- `VITE_DRAWREF_API`: The backend address, with `/api/` at the end.
+- `VITE_DRAWREF_UPLOAD`: The backend address, with `/upload/` at the end.
 
 These environment variables also work on the docker image.
 
@@ -22,7 +22,7 @@ The [quick start instructions on the backend](https://github.com/DanielOaks/draw
 But here is just starting the frontend:
 
 ```bash
-docker run -it -e REACT_APP_DRAWREF_API=http://localhost:3300/api/ -e REACT_APP_DRAWREF_UPLOAD=http://localhost:3300/upload/ -p 3000:3000 ghcr.io/danieloaks/drawref-frontend:main
+docker run -it -e VITE_DRAWREF_API=http://localhost:3300/api/ -e VITE_DRAWREF_UPLOAD=http://localhost:3300/upload/ -p 3000:3000 ghcr.io/danieloaks/drawref-frontend:main
 ```
 
 Finally, access the app on port 3000. If running the command locally, at http://localhost:3000

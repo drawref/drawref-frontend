@@ -108,7 +108,7 @@ interface OkResponse {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.REACT_APP_DRAWREF_API,
+    baseUrl: import.meta.env.VITE_DRAWREF_API,
   }),
   tagTypes: ["categories", "category-images"],
   endpoints: (build) => ({

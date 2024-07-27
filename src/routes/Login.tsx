@@ -15,7 +15,7 @@ function Login() {
           <div className="mx-5 block w-[24rem] max-w-full flex-shrink-0 border-[5px] border-slate-200 bg-white px-6 pb-6 pt-8 shadow-card">
             <h1 className="mb-7 mt-1 text-center text-3xl font-semibold">Login</h1>
             <a
-              href={urlJoin(process.env.REACT_APP_DRAWREF_API || "", "auth/github")}
+              href={urlJoin(import.meta.env.VITE_DRAWREF_API || "", "auth/github")}
               className="my-2.5 flex cursor-pointer items-center gap-4 rounded-sm bg-slate-800 py-[0.68rem] pl-12 text-center text-lg font-semibold text-white"
             >
               <img src={github} alt="GitHub logo" className="h-7" />
