@@ -15,10 +15,12 @@ import {
   useEditCategoryMutation,
   useGetCategoryImagesQuery,
   useDeleteImageFromCategoryMutation,
+  useImportImageFolderMutation,
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 import NotFound from "./NotFound";
 import { TagMap } from "../types/drawref";
+import { parseError } from "../app/utilities";
 
 type Params = {
   categoryId: string;
@@ -39,9 +41,11 @@ function AdminEditCategory() {
     error: getCategoryImagesError,
   } = useGetCategoryImagesQuery({ category: categoryId, page: 0 });
 
+  const [typeOfUpload, setTypeOfUpload] = useState("upload");
   const [uploadTags, setUploadTags] = useState<TagMap>({});
   const [uploadAuthorName, setUploadAuthorName] = useState("");
   const [uploadAuthorUrl, setUploadAuthorUrl] = useState("");
+  const [importFolder, setImportFolder] = useState("");
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
   const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
@@ -49,9 +53,13 @@ function AdminEditCategory() {
   const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
   const [addImageToCategory, { isLoading: isAddingImageToCategory, error: addImageToCategoryError }] =
     useAddImageToCategoryMutation();
+  const [importImageFolder, { isLoading: isImportingImageFolder, error: importImageFolderError }] =
+    useImportImageFolderMutation();
   const [deleteImageFromCategory] = useDeleteImageFromCategoryMutation();
 
-  const errorToShow = categoryError ? "Couldn't edit category" : "";
+  const isUploadingImages = isUploadingImage || isAddingImage || isAddingImageToCategory || isImportingImageFolder;
+
+  const categoryErrorToShow = categoryError ? `Couldn't edit category: ${parseError(categoryError)}` : "";
 
   return (
     <>
@@ -67,7 +75,7 @@ function AdminEditCategory() {
                 coverId={categoryData.cover_id}
                 coverUrl={categoryData.cover}
                 tags={categoryData.tags}
-                error={errorToShow}
+                error={categoryErrorToShow}
                 onSubmit={async (data) => {
                   if (data.name !== "") {
                     console.log("Editing category:", data);
@@ -108,71 +116,144 @@ function AdminEditCategory() {
                       onChange={(e) => setUploadAuthorUrl(e.target.value)}
                     ></input>
                   </div>
-                  <input
-                    type="file"
-                    id="coverImage"
-                    multiple
-                    onChange={async (e) => {
-                      // upload
-                      setUploadFiles((state) => {
-                        if (e.target.files === null) {
-                          return state;
-                        }
-                        return state.concat([...e.target.files]);
-                      });
-
-                      if (e.target.files === null) {
-                        return;
-                      }
-
-                      for (const file of [...e.target.files]) {
-                        try {
-                          const fData = new FormData();
-                          fData.append("image", file);
-                          const uploadResult = await uploadImage({ token: user.token, body: fData }).unwrap();
-
-                          if (uploadResult.path) {
-                            // add image
-                            const addResult = await addImage({
-                              token: user.token,
-                              body: {
-                                path: uploadResult.path,
-                                // author name and url
-                                author: uploadAuthorName,
-                                author_url: uploadAuthorUrl,
-                              },
-                            });
-                            if ("error" in addResult) {
-                              throw addResult.error;
-                            }
-
-                            // add image to category
-                            const addToCatResult = await addImageToCategory({
+                  <div className="flex gap-3">
+                    <label htmlFor="typeOfUpload" className="text-lg font-medium">
+                      Image source
+                    </label>
+                    <select
+                      id="typeOfUpload"
+                      className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                      value={typeOfUpload}
+                      onChange={(e) => setTypeOfUpload(e.target.value)}
+                      disabled={isUploadingImages}
+                    >
+                      <option value="upload">Upload</option>
+                      <option value="local">Local folder</option>
+                    </select>
+                  </div>
+                  {typeOfUpload == "local" && (
+                    <div className="box-border flex max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-3 py-2">
+                      <label htmlFor="localUploadFolder" className="text-lg font-medium">
+                        Folder on the server:
+                      </label>
+                      <input
+                        id="localUploadFolder"
+                        className="col-span-3 -mt-2 rounded px-2 py-1 text-defaultText"
+                        placeholder="/drawref/images/1"
+                        value={importFolder}
+                        onChange={(e) => setImportFolder(e.target.value)}
+                      ></input>
+                      <button
+                        type="submit"
+                        className="mx-auto mt-1 rounded bg-secondary-500 px-5 py-1.5 text-sm text-white shadow"
+                        disabled={false}
+                        onClick={() => {
+                          console.log("UPLOADING!");
+                          importImageFolder({
+                            token: user.token,
+                            body: {
+                              folder: importFolder,
+                              author: uploadAuthorName,
+                              author_url: uploadAuthorUrl,
                               category: categoryId,
-                              image: addResult.data.id,
-                              token: user.token,
-                              body: {
-                                tags: uploadTags,
-                              },
-                            });
-                            if ("error" in addToCatResult) {
-                              throw addToCatResult.error;
+                              tags: uploadTags,
+                            },
+                          });
+                        }}
+                      >
+                        Import
+                      </button>
+                    </div>
+                  )}
+                  {typeOfUpload == "upload" && (
+                    <div className="box-border flex max-w-full flex-col gap-3 border-[5px] border-primary-700 bg-primary-900 px-3 py-2">
+                      <input
+                        type="file"
+                        id="coverImage"
+                        multiple
+                        onChange={async (e) => {
+                          // upload
+                          setUploadFiles((state) => {
+                            if (e.target.files === null) {
+                              return state;
                             }
-                          }
-                        } catch (err) {
-                          console.error(err);
-                          return;
-                        }
+                            return state.concat([...e.target.files]);
+                          });
 
-                        // remove this file
-                        setUploadFiles((state) => {
-                          state = state.filter((f) => f !== file);
-                          return state;
-                        });
-                      }
-                    }}
-                  ></input>
-                  <p>{uploadFiles.length}</p>
+                          if (e.target.files === null) {
+                            return;
+                          }
+
+                          for (const file of [...e.target.files]) {
+                            try {
+                              const fData = new FormData();
+                              fData.append("image", file);
+                              const uploadResult = await uploadImage({ token: user.token, body: fData }).unwrap();
+
+                              if (uploadResult.path) {
+                                // add image
+                                const addResult = await addImage({
+                                  token: user.token,
+                                  body: {
+                                    path: uploadResult.path,
+                                    // author name and url
+                                    author: uploadAuthorName,
+                                    author_url: uploadAuthorUrl,
+                                  },
+                                });
+                                if ("error" in addResult) {
+                                  throw addResult.error;
+                                }
+
+                                // add image to category
+                                const addToCatResult = await addImageToCategory({
+                                  category: categoryId,
+                                  image: addResult.data.id,
+                                  token: user.token,
+                                  body: {
+                                    tags: uploadTags,
+                                  },
+                                });
+                                if ("error" in addToCatResult) {
+                                  throw addToCatResult.error;
+                                }
+                              }
+                            } catch (err) {
+                              console.error(err);
+                              return;
+                            }
+
+                            // remove this file
+                            setUploadFiles((state) => {
+                              state = state.filter((f) => f !== file);
+                              return state;
+                            });
+                          }
+                        }}
+                      ></input>
+                      <p>Images remaining: {uploadFiles.length}</p>
+                    </div>
+                  )}
+                  {uploadImageError && (
+                    <span className="mx-auto -mb-2 w-auto bg-red-600 px-3 py-1 text-sm">
+                      Coule not upload image: {parseError(uploadImageError)}
+                    </span>
+                  )}
+                  {addImageError && (
+                    <span className="mx-auto -mb-2 w-auto bg-red-600 px-3 py-1 text-sm">
+                      Could not add image: {parseError(addImageError)}
+                    </span>
+                  )}
+                  {addImageToCategoryError && (
+                    <span className="mx-auto -mb-2 w-auto bg-red-600 px-3 py-1 text-sm">
+                      Could not add image to category: {parseError(addImageToCategoryError)}
+                    </span>
+                  )}
+                  {importImageFolderError && (
+                    <span className="mx-auto -mb-2 w-auto bg-red-600 px-3 py-1 text-sm">
+                      Could not import image folder: {parseError(importImageFolderError)}
+                    </span>
+                  )}
                 </div>
               )}
               {!isLoadingCategoryImages && (

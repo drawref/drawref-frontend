@@ -39,6 +39,17 @@ interface AddImageRequest {
   };
 }
 
+interface ImportImageFolderRequest {
+  token: string;
+  body: {
+    folder: string;
+    author: string;
+    author_url?: string;
+    category: string;
+    tags: TagMap;
+  };
+}
+
 interface AddImageResponse {
   id: number;
   url: string;
@@ -178,6 +189,16 @@ export const api = createApi({
         body,
       }),
     }),
+    importImageFolder: build.mutation<OkResponse, ImportImageFolderRequest>({
+      query: ({ token, body }) => ({
+        url: `image/local`,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+    }),
     deleteUnusedImages: build.mutation<OkResponse, RequestWithToken>({
       query: ({ token }) => ({
         url: `image/unused`,
@@ -294,6 +315,7 @@ export const {
   useGetCategoryQuery,
   useReorderCategoriesMutation,
   useAddImageMutation,
+  useImportImageFolderMutation,
   useDeleteUnusedImagesMutation,
   useAddImageToCategoryMutation,
   useDeleteImageFromCategoryMutation,
