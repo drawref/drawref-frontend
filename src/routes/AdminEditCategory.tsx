@@ -16,6 +16,7 @@ import {
   useGetCategoryImagesQuery,
   useDeleteImageFromCategoryMutation,
   useImportImageFolderMutation,
+  useGetImageSourcesQuery,
 } from "../app/apiSlice";
 import { useUploadImageMutation } from "../app/uploadSlice";
 import NotFound from "./NotFound";
@@ -41,6 +42,7 @@ function AdminEditCategory() {
     error: getCategoryImagesError,
   } = useGetCategoryImagesQuery({ category: categoryId, page: 0 });
 
+  const [existingAuthor, setExistingAuthor] = useState("");
   const [typeOfUpload, setTypeOfUpload] = useState("upload");
   const [uploadTags, setUploadTags] = useState<TagMap>({});
   const [uploadAuthorName, setUploadAuthorName] = useState("");
@@ -48,6 +50,7 @@ function AdminEditCategory() {
   const [importFolder, setImportFolder] = useState("");
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
+  const { data: sources, isLoading: isLoadingSources } = useGetImageSourcesQuery();
   const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
   const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
   const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
@@ -63,7 +66,7 @@ function AdminEditCategory() {
 
   return (
     <>
-      {(isLoading || isEditingCategory) && <TheLoadingModal />}
+      {(isLoading || isEditingCategory || isLoadingSources) && <TheLoadingModal />}
       <div className="App dark bg-primary-950">
         <TheHeader admin={true} />
         <div id="content" className="bg-primary-950 text-center text-white">
@@ -96,21 +99,44 @@ function AdminEditCategory() {
                     <SessionCheckboxGroup tags={categoryData.tags} onChange={(tags) => setUploadTags(tags)} />
                   </div>
                   <div className="grid grid-cols-4 gap-x-4 gap-y-3">
-                    <label htmlFor="author-name" className="text-lg font-medium">
+                    <label htmlFor="existingAuthorSelect" className="text-lg font-medium">
                       Author
+                    </label>
+                    <select
+                      id="existingAuthorSelect"
+                      className="col-span-3 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                      value={existingAuthor}
+                      onChange={(e) => {
+                        setExistingAuthor(e.target.value);
+                        if (sources && e.target.value !== "") {
+                          const [aname, aurl] = sources[parseInt(e.target.value)];
+                          setUploadAuthorName(aname);
+                          setUploadAuthorUrl(aurl);
+                        }
+                      }}
+                    >
+                      <option value="">New author</option>
+                      {sources?.map((source, i) => (
+                        <option key={i} value={i}>
+                          {source[0]}
+                        </option>
+                      ))}
+                    </select>
+                    <label htmlFor="author-name" className="col-span-2 text-lg font-medium">
+                      Author name
                     </label>
                     <input
                       id="author-name"
-                      className="col-span-3 rounded px-2 py-1 text-defaultText"
+                      className="col-span-2 rounded px-2 py-1 text-defaultText"
                       value={uploadAuthorName}
                       onChange={(e) => setUploadAuthorName(e.target.value)}
                     ></input>
-                    <label htmlFor="author-url" className="text-lg font-medium">
-                      URL
+                    <label htmlFor="author-url" className="col-span-2 text-lg font-medium">
+                      Author URL
                     </label>
                     <input
                       id="author-url"
-                      className="col-span-3 rounded px-2 py-1 text-defaultText"
+                      className="col-span-2 rounded px-2 py-1 text-defaultText"
                       placeholder="Author's URL"
                       value={uploadAuthorUrl}
                       onChange={(e) => setUploadAuthorUrl(e.target.value)}
