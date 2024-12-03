@@ -75,6 +75,13 @@ interface GetCategoryImagesRequest {
   page: number;
 }
 
+interface GetCategoryImagesResponse {
+  images: Image[];
+  total_images: number;
+  page: number;
+  total_pages: number;
+}
+
 interface GetSessionRequest {
   category: string;
   tags: TagMap;
@@ -231,7 +238,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["category-images"],
     }),
-    getCategoryImages: build.query<Image[], GetCategoryImagesRequest>({
+    getCategoryImages: build.query<GetCategoryImagesResponse, GetCategoryImagesRequest>({
       query: ({ category, page }) => ({
         url: `categories/${category}/images`,
         method: "GET",
