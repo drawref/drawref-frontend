@@ -198,6 +198,7 @@ export const api = createApi({
         },
         body,
       }),
+      invalidatesTags: ["category-images"],
     }),
     deleteUnusedImages: build.mutation<OkResponse, RequestWithToken>({
       query: ({ token }) => ({
@@ -207,6 +208,7 @@ export const api = createApi({
           Authorization: `Bearer ${token}`,
         },
       }),
+      invalidatesTags: ["category-images"],
     }),
     addImageToCategory: build.mutation<OkResponse, AddImageToCategoryRequest>({
       query: ({ token, category, image, body }) => ({
