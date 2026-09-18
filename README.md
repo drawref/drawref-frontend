@@ -37,7 +37,7 @@ Make sure to install the dependencies:
 
 ```bash
 asdf install  # sets up the right version of nodejs
-yarn install
+npm install
 ```
 
 ### Development Server
@@ -45,7 +45,7 @@ yarn install
 Start the development server on http://localhost:3000
 
 ```bash
-yarn dev
+npm run start
 ```
 
 ### Testing
@@ -53,7 +53,7 @@ yarn dev
 Run the test suite:
 
 ```bash
-yarn test
+npm run test
 ```
 
 See [create-react-app / running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
@@ -66,7 +66,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 See [create-react-app / deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
 ```bash
-yarn build
+npm run build
 ```
 
 <!-- ## Learn More
