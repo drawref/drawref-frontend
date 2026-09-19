@@ -8,12 +8,21 @@ interface Props {
   sourceId: number;
   sourceSlug: string;
   metadata?: PathMetadata;
+  allMetadata?: PathMetadata[];
   onSubmit(data: PathMetadata): void;
   onCancel(): void;
   isSubmitting?: boolean;
 }
 
-function AdminPathMetadataForm({ sourceId, sourceSlug, metadata, onSubmit, onCancel, isSubmitting }: Props) {
+function AdminPathMetadataForm({
+  sourceId,
+  sourceSlug,
+  metadata,
+  allMetadata,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+}: Props) {
   const user = useAppSelector((state) => state.userProfile);
 
   const [pRelativePath, setPRelativePath] = useState(metadata?.relative_path || "");
@@ -52,7 +61,23 @@ function AdminPathMetadataForm({ sourceId, sourceSlug, metadata, onSubmit, onCan
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [wrapperRef]);
 
-  const selectedCategory = categories?.find((c) => c.id === pCategoryId);
+  let inheritedCategoryId: string | undefined;
+  if (pRelativePath !== "" && allMetadata) {
+    const parentMetas = allMetadata.filter((m) => {
+      if (m.id === metadata?.id) return false;
+      return (
+        m.relative_path === "" || pRelativePath === m.relative_path || pRelativePath.startsWith(m.relative_path + "/")
+      );
+    });
+    parentMetas.sort((a, b) => b.relative_path.length - a.relative_path.length);
+    const inheritedMeta = parentMetas.find((m) => m.category_id);
+    if (inheritedMeta) {
+      inheritedCategoryId = inheritedMeta.category_id;
+    }
+  }
+
+  const activeCategoryId = pCategoryId || inheritedCategoryId;
+  const selectedCategory = activeCategoryId ? categories?.find((c) => c.id === activeCategoryId) : undefined;
 
   return (
     <form
@@ -124,7 +149,7 @@ function AdminPathMetadataForm({ sourceId, sourceSlug, metadata, onSubmit, onCan
           value={pCategoryId}
           onChange={(e) => setPCategoryId(e.target.value)}
         >
-          <option value="">-- None (Inherit or None) --</option>
+          <option value="">{pRelativePath === "" ? "-- None --" : "-- Inherit --"}</option>
           {categories?.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.display_name || cat.id}
@@ -175,9 +200,17 @@ function AdminPathMetadataForm({ sourceId, sourceSlug, metadata, onSubmit, onCan
 
       {selectedCategory && selectedCategory.tags && selectedCategory.tags.length > 0 && (
         <div className="mt-2 text-left">
-          <p className="mb-2 font-medium">Tags ({selectedCategory.display_name || selectedCategory.id})</p>
+          <p className="mb-2 font-medium">
+            Tags ({selectedCategory.display_name || selectedCategory.id}
+            {!pCategoryId && inheritedCategoryId ? " - Inherited" : ""})
+          </p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded bg-primary-900 p-3">
-            <SessionCheckboxGroup tags={selectedCategory.tags} onChange={(tags) => setPTags(tags)} />
+            <SessionCheckboxGroup
+              key={selectedCategory.id}
+              tags={selectedCategory.tags}
+              initialData={pTags}
+              onChange={(tags) => setPTags(tags)}
+            />
           </div>
         </div>
       )}

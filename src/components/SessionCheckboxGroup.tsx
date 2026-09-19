@@ -3,13 +3,14 @@ import { Tag, TagMap } from "../types/drawref";
 
 interface Props {
   tags: Tag[];
+  initialData?: TagMap;
   onChange?(newData: TagMap): void;
 }
 
-function SessionCheckboxGroup({ tags, onChange }: Props) {
+function SessionCheckboxGroup({ tags, initialData, onChange }: Props) {
   const emptyTags: TagMap = {};
   for (const info of tags) {
-    emptyTags[info.id] = [];
+    emptyTags[info.id] = initialData?.[info.id] || [];
   }
   const [data, setData] = useState(emptyTags);
 

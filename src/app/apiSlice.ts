@@ -95,7 +95,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_DRAWREF_API || "http://localhost:3300/api/",
   }),
-  tagTypes: ["categories", "category-images", "sources"],
+  tagTypes: ["categories", "category-images", "sources", "source-path-metadata"],
   endpoints: (build) => ({
     loadSamples: build.mutation<OkResponse, RequestWithToken>({
       query: (args) => ({
@@ -103,7 +103,7 @@ export const api = createApi({
         method: "POST",
         headers: { Authorization: `Bearer ${args.token}` },
       }),
-      invalidatesTags: ["categories", "category-images", "sources"],
+      invalidatesTags: ["categories", "category-images", "sources", "source-path-metadata"],
     }),
 
     // categories
@@ -272,6 +272,7 @@ export const api = createApi({
           Authorization: `Bearer ${token}`,
         },
       }),
+      providesTags: ["source-path-metadata"],
     }),
     upsertPathMetadata: build.mutation<OkResponse, { token: string; slug: string; body: PathMetadata }>({
       query: ({ token, slug, body }) => ({
@@ -282,6 +283,7 @@ export const api = createApi({
         },
         body,
       }),
+      invalidatesTags: ["source-path-metadata"],
     }),
     deletePathMetadata: build.mutation<OkResponse, { token: string; slug: string; id: number }>({
       query: ({ token, slug, id }) => ({
@@ -292,6 +294,7 @@ export const api = createApi({
         },
         body: { id },
       }),
+      invalidatesTags: ["source-path-metadata"],
     }),
 
     // sessions

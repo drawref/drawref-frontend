@@ -103,6 +103,7 @@ function AdminEditSource() {
                       sourceId={source.id!}
                       sourceSlug={sourceSlug}
                       metadata={editingMetadata || undefined}
+                      allMetadata={metadataList}
                       isSubmitting={isUpserting}
                       onCancel={() => {
                         setShowMetadataForm(false);

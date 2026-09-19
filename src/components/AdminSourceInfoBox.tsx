@@ -85,12 +85,14 @@ function AdminSourceInfoBox({ source, onSubmit, error, isSubmitting }: Props) {
         </label>
         <select
           id="sourceType"
-          className="rounded px-2 py-1.5 text-defaultText"
+          className="rounded px-2 py-1.5 text-defaultText disabled:cursor-not-allowed disabled:opacity-60"
           value={sSourceType}
           onChange={(e) => setSSourceType(e.target.value)}
+          disabled={source?.source_type === "samples"}
         >
           <option value="local">Local Directory</option>
           <option value="s3">S3 Bucket</option>
+          {source?.source_type === "samples" && <option value="samples">Built-in Samples</option>}
         </select>
       </div>
 
@@ -101,7 +103,7 @@ function AdminSourceInfoBox({ source, onSubmit, error, isSubmitting }: Props) {
         <div className="relative">
           <input
             id="rootPath"
-            className="w-full rounded px-2 py-1.5 text-defaultText"
+            className="w-full rounded px-2 py-1.5 text-defaultText disabled:cursor-not-allowed disabled:opacity-60"
             value={sRootPath}
             onChange={(e) => {
               setSRootPath(e.target.value);
@@ -110,6 +112,7 @@ function AdminSourceInfoBox({ source, onSubmit, error, isSubmitting }: Props) {
             onFocus={() => setShowAutocomplete(true)}
             required
             autoComplete="off"
+            disabled={source?.source_type === "samples"}
           />
           {showAutocomplete && sSourceType === "local" && pathSuggestions && pathSuggestions.length > 0 && (
             <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white text-defaultText shadow-lg">
