@@ -120,9 +120,9 @@ function AdminPathMetadataForm({
             autoComplete="off"
             disabled={!!metadata} // Disable editing path for existing records to keep it simple
           />
-          {showAutocomplete && !metadata && pathSuggestions && pathSuggestions.length > 0 && (
+          {showAutocomplete && !metadata && pathSuggestions && pathSuggestions.directories.length > 0 && (
             <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white text-defaultText shadow-lg">
-              {pathSuggestions.map((suggestion) => (
+              {pathSuggestions.directories.map((suggestion) => (
                 <li
                   key={suggestion}
                   className="cursor-pointer px-3 py-2 hover:bg-primary-100"

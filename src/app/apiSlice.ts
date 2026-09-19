@@ -188,7 +188,10 @@ export const api = createApi({
         },
       }),
     }),
-    getSourceDirectories: build.query<string[], { token: string; slug: string; path: string }>({
+    getSourceDirectories: build.query<
+      { directories: string[]; images: Image[] },
+      { token: string; slug: string; path: string }
+    >({
       query: ({ token, slug, path }) => ({
         url: `source/${slug}/directories`,
         method: "GET",
@@ -296,6 +299,17 @@ export const api = createApi({
       }),
       invalidatesTags: ["source-path-metadata"],
     }),
+    editImage: build.mutation<Image, { token: string; id: number; body: Partial<Image> }>({
+      query: ({ token, id, body }) => ({
+        url: `image/${id}`,
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["category-images"],
+    }),
 
     // sessions
     //
@@ -364,6 +378,7 @@ export const {
   useGetSourcePathMetadataQuery,
   useUpsertPathMetadataMutation,
   useDeletePathMetadataMutation,
+  useEditImageMutation,
   useGetAvailableImageCountQuery,
   useGetUserQuery,
   useLoginUserMutation,
