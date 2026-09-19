@@ -37,14 +37,14 @@ function AdminDashboard() {
                     to={`/admin/c/${cat.id}`}
                     className="block flex-grow py-2 text-xl font-medium hover:bg-primary-800"
                   >
-                    {cat.name}
+                    {cat.display_name || cat.id}
                   </Link>
                   <button
                     className="block px-3 py-2 text-xl font-medium hover:bg-red-800"
                     onClick={async (e) => {
                       if (
                         window.confirm(
-                          `Delete ${cat.name} category?\nThis will also remove all images from this category.`,
+                          `Delete ${cat.display_name || cat.id} category?\nThis will also remove all images from this category.`,
                         )
                       ) {
                         try {
@@ -71,6 +71,13 @@ function AdminDashboard() {
                 Add sample data
               </Link>
             )}
+          </div>
+
+          <h1 className="mb-3 mt-10 text-2xl font-semibold">Sources</h1>
+          <div className="mx-auto flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
+            <Link to="/admin/sources" className="block py-3 hover:bg-primary-800">
+              Manage Sources
+            </Link>
           </div>
 
           <div className="mx-auto mt-6 flex w-[20em] max-w-full flex-col border-[5px] border-primary-700 bg-primary-900">
@@ -102,7 +109,7 @@ function AdminDashboard() {
                     await reorderCategories({
                       token: user.token,
                       body: {
-                        categories: ["poses", "faces"],
+                        ids: ["poses", "faces"],
                       },
                     });
                   } catch (err) {

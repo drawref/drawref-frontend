@@ -2,7 +2,6 @@ import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { api } from "./apiSlice";
-import { upload } from "./uploadSlice";
 import { sessionTagsSlice } from "./sessionTagsSlice";
 import { userProfileSlice, login, logout } from "./userProfileSlice";
 
@@ -24,7 +23,6 @@ listenerMiddleware.startListening({
 export const store = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
-    [upload.reducerPath]: upload.reducer,
     sessionTags: sessionTagsSlice.reducer,
     userProfile: userProfileSlice.reducer,
   },
@@ -32,7 +30,7 @@ export const store = configureStore({
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(api.middleware).concat(upload.middleware),
+    getDefaultMiddleware().prepend(listenerMiddleware.middleware).concat(api.middleware),
 });
 
 export type AppStore = typeof store;

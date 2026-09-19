@@ -1,9 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import slugify from "slugify";
 
-import { useAppSelector } from "../app/hooks";
-import { useAddImageMutation, useGetSampleDataQuery } from "../app/apiSlice";
-import { useUploadImageMutation } from "../app/uploadSlice";
 import { Category, Tag } from "../types/drawref";
 
 function stringifyTags(tagsList: Tag[]): string {
@@ -59,38 +56,11 @@ interface Props {
 }
 
 function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }: Props) {
-  const user = useAppSelector((state) => state.userProfile);
-
   const [cName, setCName] = useState(name || "");
-  const [cCoverId, setCCoverId] = useState(coverId);
-  const [cCoverUrl, setCCoverUrl] = useState(coverUrl || "");
+  const [cCoverId, setCCoverId] = useState<number | undefined>(coverId);
   const [cTags, setCTags] = useState(stringifyTags(tags || []));
 
-  const coverRef = useRef<HTMLInputElement>(null);
-
-  const { data: sampleData, isLoading: isSampleDataLoading } = useGetSampleDataQuery({ token: user.token });
-  const [addImage, { isLoading: isAddingImage, error: addImageError }] = useAddImageMutation();
-  const [uploadImage, { isLoading: isUploadingImage, error: uploadImageError }] = useUploadImageMutation();
-  const categoryTags = sampleData && sampleData.categories;
-
-  const otherTextErrors = [addImageError || null, uploadImageError || null]
-    .filter((e: any) => e && e.data)
-    .map((e: any) => e.data.error);
-  const errorToShow = [error, otherTextErrors].join(" ").trim();
-
-  function applyTagTemplate(key: string) {
-    const value = categoryTags && categoryTags.filter((info) => info.name === key)[0];
-    if (value) {
-      // note, better way to do things would be to track whether the category
-      //  name has been changed from a default/template value or left default.
-      // if it's been changed, don't replace name, otherwise replace name.
-      setCName(value.name);
-
-      // if tags has been manually modified, we should ask for confirmation
-      //  before just replacing all the existing values like this.
-      setCTags(value.tags.map((entry: Tag) => `${entry.name}: ${entry.values.join(", ")}`).join("\n"));
-    }
-  }
+  const errorToShow = error;
 
   return (
     <form
@@ -100,39 +70,12 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
 
         const data: Category = {
           id: slugify(cName.trim(), "_").toLowerCase(),
-          name: cName.trim(),
+          display_name: cName.trim(),
           tags: parseTags(cTags),
         };
 
-        if (cCoverUrl !== "") {
-          data.cover_id = cCoverId;
-        } else if (coverRef.current?.files && coverRef.current?.files?.length > 0) {
-          try {
-            const fData = new FormData();
-            fData.append("image", coverRef.current.files[0]);
-            const uploadResult = await uploadImage({ token: user.token, body: fData }).unwrap();
-
-            if (uploadResult.path) {
-              // add image
-              const addResult = await addImage({
-                token: user.token,
-                body: {
-                  path: uploadResult.path,
-                  author: "",
-                },
-              });
-              if ("error" in addResult) {
-                throw addResult.error;
-              }
-
-              data.cover_id = addResult.data.id;
-              setCCoverId(addResult.data.id);
-              setCCoverUrl(addResult.data.url);
-            }
-          } catch (err) {
-            console.error(err);
-            return;
-          }
+        if (cCoverId !== undefined) {
+          data.cover_image = cCoverId;
         }
 
         onSubmit(data);
@@ -141,22 +84,17 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
       <h2 className="text-xl font-medium">Information</h2>
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <label htmlFor="coverImage" className="text-lg font-medium">
-          Cover
+          Cover Image ID
         </label>
-        {cCoverUrl && (
-          <>
-            <img src={cCoverUrl} className="h-10" />
-            <button
-              onClick={() => {
-                setCCoverId(-1);
-                setCCoverUrl("");
-              }}
-            >
-              Remove Cover
-            </button>
-          </>
-        )}
-        {!cCoverUrl && <input type="file" id="coverImage" ref={coverRef}></input>}
+        <input
+          id="coverImage"
+          type="number"
+          className="max-w-full rounded px-2 py-1 text-defaultText"
+          value={cCoverId !== undefined ? cCoverId : ""}
+          onChange={(e) => {
+            setCCoverId(parseInt(e.target.value) || undefined);
+          }}
+        ></input>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <label htmlFor="name" className="text-lg font-medium">
@@ -179,37 +117,10 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
         value={cTags}
         onChange={(e) => setCTags(e.target.value)}
       ></textarea>
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <label htmlFor="tagTemplate" className="text-lg font-medium">
-          Use template
-        </label>
-        {isSampleDataLoading && <span>Loading...</span>}
-        {!isSampleDataLoading && (
-          <select
-            id="tagTemplate"
-            className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
-            onChange={(e) => applyTagTemplate(e.target.value)}
-          >
-            <option value="">-- Select --</option>
-            {categoryTags &&
-              categoryTags.map((info) => (
-                <option key={info.name} value={info.name}>
-                  {info.name}
-                </option>
-              ))}
-          </select>
-        )}
-      </div>
 
-      {errorToShow && (
-        <span className="mx-auto -mb-5 mt-3 w-auto bg-red-600 px-3 py-1 text-sm">Error: {errorToShow}</span>
-      )}
+      <p className="mt-4 text-center font-semibold text-red-500">{errorToShow}</p>
 
-      <button
-        type="submit"
-        className="mx-auto mt-6 rounded bg-secondary-500 px-5 py-1.5 text-sm text-white shadow"
-        disabled={false}
-      >
+      <button className="mt-2 block w-full rounded bg-primary-700 py-3 text-lg font-bold text-white hover:bg-primary-600">
         Save
       </button>
     </form>

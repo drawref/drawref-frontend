@@ -69,7 +69,7 @@ function SessionSelection() {
         <TheHeader />
         {category && (
           <div id="content" className="bg-white text-center text-defaultText">
-            <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.name}</h1>
+            <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.display_name || category.id}</h1>
             <form
               className="mb-6 flex flex-col gap-3"
               onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate)}

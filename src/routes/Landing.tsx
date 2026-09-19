@@ -18,7 +18,16 @@ function Landing() {
           <div className="mx-auto my-8 flex w-[60rem] max-w-full flex-wrap items-center justify-center gap-8 px-4 md:gap-12">
             {categories &&
               categories.map((cat) => (
-                <LandingCategoryCard key={cat.id} categoryKey={cat.id} name={cat.name} imageUrl={cat.cover} />
+                <LandingCategoryCard
+                  key={cat.id}
+                  categoryKey={cat.id}
+                  name={cat.display_name || cat.id}
+                  imageUrl={
+                    cat.cover_image
+                      ? `${import.meta.env.VITE_DRAWREF_API || "http://localhost:3300/api/"}image/${cat.cover_image}`
+                      : undefined
+                  }
+                />
               ))}
             {categories && categories.length === 0 && <span>No categories exist, login to add one!</span>}
           </div>

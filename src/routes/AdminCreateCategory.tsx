@@ -27,7 +27,7 @@ function AdminCreateCategory() {
             <AdminCategoryInfoBox
               error={errorToShow}
               onSubmit={async (data) => {
-                if (data.id !== "" && data.name !== "") {
+                if (data.id !== "" && data.display_name !== "") {
                   try {
                     const result = await addCategory({ token: user.token, body: data }).unwrap();
                     // created successfully, move to the new category edit page

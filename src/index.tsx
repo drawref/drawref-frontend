@@ -17,15 +17,16 @@ import Landing from "./routes/Landing";
 import About from "./routes/About";
 import Credits from "./routes/Credits";
 import AdminDashboard from "./routes/AdminDashboard";
-import AdminAddSampleData from "./routes/AdminAddSampleData";
 import AdminCreateCategory from "./routes/AdminCreateCategory";
 import AdminEditCategory from "./routes/AdminEditCategory";
+import AdminSources from "./routes/AdminSources";
+import AdminCreateSource from "./routes/AdminCreateSource";
+import AdminEditSource from "./routes/AdminEditSource";
 import UserDashboard from "./routes/UserDashboard";
 import DashboardLinks from "./routes/DashboardLinks";
 import SessionSelection, { loader as sessionSelectionLoader } from "./routes/SessionSelection";
 import Session from "./routes/Session";
 import Login from "./routes/Login";
-import LoginSuccess from "./routes/LoginSuccess";
 import NotFound from "./routes/NotFound";
 
 const router = createBrowserRouter([
@@ -58,8 +59,16 @@ const router = createBrowserRouter([
         element: <AdminEditCategory />,
       },
       {
-        path: "/admin/add-sample-data",
-        element: <AdminAddSampleData />,
+        path: "/admin/sources",
+        element: <AdminSources />,
+      },
+      {
+        path: "/admin/source/create",
+        element: <AdminCreateSource />,
+      },
+      {
+        path: "/admin/source/:sourceSlug",
+        element: <AdminEditSource />,
       },
     ],
   },
@@ -79,10 +88,6 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-  },
-  {
-    path: "/login/success",
-    element: <LoginSuccess />,
   },
   {
     path: "/about",
