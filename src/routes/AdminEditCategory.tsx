@@ -87,7 +87,11 @@ function AdminEditCategory() {
                           key={img.id}
                           className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
                           data-image={img.id}
-                          style={{ backgroundImage: `url(${encodeURI(img.path)})` }}
+                          style={{
+                            backgroundImage: `url(${encodeURI(
+                              `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${img.id}`,
+                            )})`,
+                          }}
                           onClick={async (e) => {
                             try {
                               const imageId = (e.target as HTMLElement).dataset.image;

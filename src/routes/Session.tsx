@@ -64,9 +64,12 @@ function Session() {
 
   // get current image path from session, or from history
   const currentImageData = (onApiImages && session ? session[currentImage] : historyImages[currentImage]) || {
+    id: 0,
     path: "",
   };
-  const currentImagePath = currentImageData.path;
+  const currentImageUrl = currentImageData.id
+    ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${currentImageData.id}`
+    : "";
 
   return (
     <>
@@ -74,7 +77,7 @@ function Session() {
       <div className="App z-0 bg-primary-950 text-white">
         <div
           className="absolute left-0 top-0 z-10 h-screen w-screen bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${encodeURI(currentImagePath)})` }}
+          style={{ backgroundImage: `url(${encodeURI(currentImageUrl)})` }}
           onClick={() => setShowUi(!showUi)}
         ></div>
         <SessionTimer seconds={secondsRemaining} />
