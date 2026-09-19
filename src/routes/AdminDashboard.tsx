@@ -7,9 +7,15 @@ import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 
 import { useAppSelector } from "../app/hooks";
-import { useGetCategoriesQuery, useDeleteCategoryMutation, useReorderCategoriesMutation } from "../app/apiSlice";
+import {
+  useGetCategoriesQuery,
+  useDeleteCategoryMutation,
+  useReorderCategoriesMutation,
+  useLoadSamplesMutation,
+} from "../app/apiSlice";
 
 function AdminDashboard() {
+  const [loadSamples, { isLoading: isSamplesLoading }] = useLoadSamplesMutation();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [reorderCategories] = useReorderCategoriesMutation();
@@ -61,9 +67,16 @@ function AdminDashboard() {
               Create new
             </Link>
             {(!categories || categories.length === 0) && (
-              <Link to="/admin/add-sample-data" className="block py-3 hover:bg-primary-800">
+              <button
+                className="block w-full cursor-pointer px-3 py-3 text-left hover:bg-primary-800"
+                disabled={isSamplesLoading}
+                onClick={async () => {
+                  await loadSamples({ token: user.token });
+                  alert("Sample data added! Images are scanning in the background.");
+                }}
+              >
                 Add sample data
-              </Link>
+              </button>
             )}
           </div>
 

@@ -97,6 +97,15 @@ export const api = createApi({
   }),
   tagTypes: ["categories", "category-images", "sources"],
   endpoints: (build) => ({
+    loadSamples: build.mutation<OkResponse, RequestWithToken>({
+      query: (args) => ({
+        url: "system/load-samples",
+        method: "POST",
+        headers: { Authorization: `Bearer ${args.token}` },
+      }),
+      invalidatesTags: ["categories", "category-images", "sources"],
+    }),
+
     // categories
     //
     addCategory: build.mutation<ModifyCategoryResponse, AddCategoryRequest>({
@@ -331,6 +340,7 @@ export const api = createApi({
 });
 
 export const {
+  useLoadSamplesMutation,
   useAddCategoryMutation,
   useEditCategoryMutation,
   useDeleteCategoryMutation,
