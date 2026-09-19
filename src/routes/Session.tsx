@@ -82,14 +82,16 @@ function Session() {
         ></div>
         <SessionTimer seconds={secondsRemaining} />
         <div className="absolute bottom-0 left-0 z-40 flex w-screen flex-col items-center">
-          {currentImageData && currentImageData.author && (
+          {currentImageData && currentImageData.effective_author && (
             <div className="w-auto min-w-[8rem] rounded-t-lg bg-slate-900 bg-opacity-55 text-center text-white">
-              {currentImageData.author_url && (
-                <a href={currentImageData.author_url} target="_blank" rel="noreferrer" className="px-3 pt-2">
-                  {currentImageData.author}
+              {currentImageData.effective_author_url && (
+                <a href={currentImageData.effective_author_url} target="_blank" rel="noreferrer" className="px-3 pt-2">
+                  {currentImageData.effective_author}
                 </a>
               )}
-              {!currentImageData.author_url && <span className="px-3 pt-2">{currentImageData.author}</span>}
+              {!currentImageData.effective_author_url && (
+                <span className="px-3 pt-2">{currentImageData.effective_author}</span>
+              )}
             </div>
           )}
           {showUi && (

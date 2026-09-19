@@ -29,47 +29,6 @@ interface ReorderCategoriesRequest {
   };
 }
 
-interface AddImageRequest {
-  token: string;
-  body: {
-    path?: string;
-    external_url?: string;
-    author?: string;
-    author_url?: string;
-  };
-}
-
-interface ImportImageFolderRequest {
-  token: string;
-  body: {
-    folder: string;
-    author: string;
-    author_url?: string;
-    category: string;
-    tags: TagMap;
-  };
-}
-
-interface AddImageResponse {
-  id: number;
-  url: string;
-}
-
-interface AddImageToCategoryRequest {
-  token: string;
-  category: string;
-  image: number;
-  body: {
-    tags: TagMap;
-  };
-}
-
-interface DeleteImageFromCategoryRequest {
-  token: string;
-  category: string;
-  image: number;
-}
-
 interface GetCategoryImagesRequest {
   category: string;
   page: number;
@@ -194,61 +153,9 @@ export const api = createApi({
 
     // images
     //
-    addImage: build.mutation<AddImageResponse, AddImageRequest>({
-      query: ({ token, body }) => ({
-        url: `image`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body,
-      }),
-    }),
-    importImageFolder: build.mutation<OkResponse, ImportImageFolderRequest>({
-      query: ({ token, body }) => ({
-        url: `image/local`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body,
-      }),
-      invalidatesTags: ["category-images"],
-    }),
-    deleteUnusedImages: build.mutation<OkResponse, RequestWithToken>({
-      query: ({ token }) => ({
-        url: `image/unused`,
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-      invalidatesTags: ["category-images"],
-    }),
-    addImageToCategory: build.mutation<OkResponse, AddImageToCategoryRequest>({
-      query: ({ token, category, image, body }) => ({
-        url: `categories/${category}/images/${image}`,
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body,
-      }),
-      invalidatesTags: ["category-images"],
-    }),
-    deleteImageFromCategory: build.mutation<OkResponse, DeleteImageFromCategoryRequest>({
-      query: ({ token, category, image }) => ({
-        url: `categories/${category}/images/${image}`,
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-      invalidatesTags: ["category-images"],
-    }),
     getCategoryImages: build.query<GetCategoryImagesResponse, GetCategoryImagesRequest>({
       query: ({ category, page }) => ({
-        url: `categories/${category}/images`,
+        url: `category/${category}/images`,
         method: "GET",
         params: {
           page,
@@ -256,9 +163,9 @@ export const api = createApi({
       }),
       providesTags: ["category-images"],
     }),
-    getImageSources: build.query<string[][], void>({
+    getImageAuthors: build.query<string[][], void>({
       query: () => ({
-        url: `image/sources`,
+        url: `authors`,
         method: "GET",
       }),
     }),
@@ -430,13 +337,8 @@ export const {
   useGetCategoriesQuery,
   useGetCategoryQuery,
   useReorderCategoriesMutation,
-  useAddImageMutation,
-  useImportImageFolderMutation,
-  useDeleteUnusedImagesMutation,
-  useAddImageToCategoryMutation,
-  useDeleteImageFromCategoryMutation,
   useGetCategoryImagesQuery,
-  useGetImageSourcesQuery,
+  useGetImageAuthorsQuery,
   useGetDirectorySuggestionsQuery,
   useGetSourceDirectoriesQuery,
   useGetSourcesQuery,

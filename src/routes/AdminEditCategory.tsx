@@ -7,12 +7,7 @@ import TheLoadingModal from "../components/TheLoadingModal";
 import AdminCategoryInfoBox from "../components/AdminCategoryInfoBox";
 
 import { useAppSelector } from "../app/hooks";
-import {
-  useGetCategoryQuery,
-  useEditCategoryMutation,
-  useGetCategoryImagesQuery,
-  useDeleteImageFromCategoryMutation,
-} from "../app/apiSlice";
+import { useGetCategoryQuery, useEditCategoryMutation, useGetCategoryImagesQuery } from "../app/apiSlice";
 import NotFound from "./NotFound";
 import { parseError } from "../app/utilities";
 import Pagination from "../components/Pagination";
@@ -39,7 +34,6 @@ function AdminEditCategory() {
   } = useGetCategoryImagesQuery({ category: categoryId, page: imagesPage - 1 });
 
   const [editCategory, { isLoading: isEditingCategory, error: categoryError }] = useEditCategoryMutation();
-  const [deleteImageFromCategory] = useDeleteImageFromCategoryMutation();
 
   const categoryErrorToShow = categoryError ? `Couldn't edit category: ${parseError(categoryError)}` : "";
 
@@ -83,31 +77,16 @@ function AdminEditCategory() {
                   <div className="flex flex-wrap items-center justify-center gap-4">
                     {categoryImages &&
                       categoryImages.images.map((img) => (
-                        <button
+                        <div
                           key={img.id}
-                          className="h-20 w-20 rounded-lg bg-cover hover:border-8 hover:border-red-500 hover:blur"
+                          className="h-20 w-20 rounded-lg bg-cover"
                           data-image={img.id}
                           style={{
                             backgroundImage: `url(${encodeURI(
                               `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${img.id}`,
                             )})`,
                           }}
-                          onClick={async (e) => {
-                            try {
-                              const imageId = (e.target as HTMLElement).dataset.image;
-                              if (imageId) {
-                                await deleteImageFromCategory({
-                                  category: categoryId,
-                                  image: parseInt(imageId),
-                                  token: user.token,
-                                });
-                              }
-                            } catch (err) {
-                              console.error(err);
-                              return;
-                            }
-                          }}
-                        ></button>
+                        ></div>
                       ))}
                   </div>
                 </div>

@@ -16,10 +16,19 @@ export type Category = {
 
 export type Image = {
   id: number;
-  path: string;
-  author: string;
-  author_url: string;
-  tags?: TagMap;
+  source_id: number;
+  relative_path: string;
+  file_hash?: string;
+  local_path?: string;
+  external_url?: string;
+  category_override?: string;
+  author_override?: string;
+  author_url_override?: string;
+  tags_override?: TagMap;
+  effective_category_id?: string;
+  effective_author?: string;
+  effective_author_url?: string;
+  effective_tags?: TagMap;
 };
 
 export type ImageList = Image[];
