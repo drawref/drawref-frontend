@@ -20,7 +20,11 @@ function AdminImageOverrideModal({
   onSave: (id: number, data: Partial<Image>) => Promise<void>;
 }) {
   let inheritedCategoryId: string | undefined = image.effective_category_id;
-  if (!inheritedCategoryId && metadataList) {
+  let inheritedAuthor: string | undefined = image.effective_author;
+  let inheritedAuthorUrl: string | undefined = image.effective_author_url;
+  let inheritedTags: TagMap | undefined = image.effective_tags;
+
+  if (metadataList) {
     const parentMetas = metadataList.filter((m) => {
       const cleanMetaPath = m.relative_path.replace(/\/$/, "");
       return (
@@ -30,24 +34,64 @@ function AdminImageOverrideModal({
       );
     });
     parentMetas.sort((a, b) => b.relative_path.length - a.relative_path.length);
-    const inheritedMeta = parentMetas.find((m) => m.category_id);
-    if (inheritedMeta) {
-      inheritedCategoryId = inheritedMeta.category_id;
+
+    if (!inheritedCategoryId) {
+      const inheritedMeta = parentMetas.find((m) => m.category_id);
+      if (inheritedMeta) {
+        inheritedCategoryId = inheritedMeta.category_id;
+      }
+    }
+    if (!inheritedAuthor) {
+      const inheritedMeta = parentMetas.find((m) => m.author);
+      if (inheritedMeta) {
+        inheritedAuthor = inheritedMeta.author;
+      }
+    }
+    if (!inheritedAuthorUrl) {
+      const inheritedMeta = parentMetas.find((m) => m.author_url);
+      if (inheritedMeta) {
+        inheritedAuthorUrl = inheritedMeta.author_url;
+      }
+    }
+    if (!inheritedTags || Object.keys(inheritedTags).length === 0) {
+      const inheritedMeta = parentMetas.find((m) => m.tags && Object.keys(m.tags).length > 0);
+      if (inheritedMeta) {
+        inheritedTags = inheritedMeta.tags;
+      }
     }
   }
 
-  const [enableCategory, setEnableCategory] = useState(!!image.category_override);
+  const hasCategoryOverride = Boolean(image.category_override);
+  const [enableCategory, setEnableCategory] = useState(hasCategoryOverride);
   const [category, setCategory] = useState(image.category_override || inheritedCategoryId || categories?.[0]?.id || "");
 
-  const [enableAuthor, setEnableAuthor] = useState(!!(image.author_override || image.author_url_override));
-  const [author, setAuthor] = useState(image.author_override || "");
-  const [authorUrl, setAuthorUrl] = useState(image.author_url_override || "");
+  const hasAuthorOverride = Boolean(
+    (image.author_override !== null && image.author_override !== undefined && image.author_override !== "") ||
+    (image.author_url_override !== null && image.author_url_override !== undefined && image.author_url_override !== ""),
+  );
+  const [enableAuthor, setEnableAuthor] = useState(hasAuthorOverride);
+  const [author, setAuthor] = useState(hasAuthorOverride ? (image.author_override ?? "") : (inheritedAuthor ?? ""));
+  const [authorUrl, setAuthorUrl] = useState(
+    hasAuthorOverride ? (image.author_url_override ?? "") : (inheritedAuthorUrl ?? ""),
+  );
 
-  const [enableTags, setEnableTags] = useState(!!image.tags_override && Object.keys(image.tags_override).length > 0);
-  const [tags, setTags] = useState<TagMap>(image.tags_override || {});
+  const hasTagsOverride = image.tags_override != null && typeof image.tags_override === "object";
+  const [enableTags, setEnableTags] = useState(hasTagsOverride);
+  const [tags, setTags] = useState<TagMap>(hasTagsOverride ? image.tags_override || {} : inheritedTags || {});
 
   const activeCategoryId = enableCategory ? category : inheritedCategoryId;
   const selectedCategory = activeCategoryId ? categories?.find((c) => c.id === activeCategoryId) : undefined;
+
+  const inheritedTagSummary = useMemo(() => {
+    if (!inheritedTags || Object.keys(inheritedTags).length === 0) return "";
+    const parts: string[] = [];
+    for (const [tagGroup, values] of Object.entries(inheritedTags)) {
+      if (values && values.length > 0) {
+        parts.push(values.join(", "));
+      }
+    }
+    return parts.join("; ");
+  }, [inheritedTags]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
@@ -102,9 +146,18 @@ function AdminImageOverrideModal({
           </div>
         )}
 
-        {!enableCategory && inheritedCategoryId && (
+        {!enableCategory && (
           <div className="text-sm text-gray-400">
-            Inheriting category: <strong>{inheritedCategoryId}</strong>
+            {inheritedCategoryId ? (
+              <>
+                Inheriting category:{" "}
+                <strong>
+                  {categories?.find((c) => c.id === inheritedCategoryId)?.display_name || inheritedCategoryId}
+                </strong>
+              </>
+            ) : (
+              "No category currently inherited."
+            )}
           </div>
         )}
 
@@ -131,6 +184,32 @@ function AdminImageOverrideModal({
           </div>
         )}
 
+        {!enableAuthor && (
+          <div className="text-sm text-gray-400">
+            {inheritedAuthor ? (
+              <>
+                Inheriting author: <strong>{inheritedAuthor}</strong>
+                {inheritedAuthorUrl && (
+                  <span className="ml-1">
+                    (
+                    <a
+                      href={inheritedAuthorUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary-300 underline hover:text-primary-200"
+                    >
+                      {inheritedAuthorUrl}
+                    </a>
+                    )
+                  </span>
+                )}
+              </>
+            ) : (
+              "No author currently inherited."
+            )}
+          </div>
+        )}
+
         {enableTags && selectedCategory && selectedCategory.tags && selectedCategory.tags.length > 0 && (
           <div className="mt-2 text-left">
             <p className="mb-2 text-sm font-medium text-gray-400">
@@ -149,6 +228,18 @@ function AdminImageOverrideModal({
 
         {enableTags && (!selectedCategory || !selectedCategory.tags || selectedCategory.tags.length === 0) && (
           <div className="text-sm text-gray-400">No tags available for the current category.</div>
+        )}
+
+        {!enableTags && (
+          <div className="text-sm text-gray-400">
+            {inheritedTagSummary ? (
+              <>
+                Inheriting tags: <strong>{inheritedTagSummary}</strong>
+              </>
+            ) : (
+              "No tags currently inherited."
+            )}
+          </div>
         )}
 
         <button
@@ -282,9 +373,10 @@ function AdminSourcePathBrowser({ sourceId, sourceSlug, metadataList, onEditMeta
               >
                 <Icon path={mdiImage} size={0.8} className="text-blue-400" />
                 <span className="font-mono text-sm">{displayImg}</span>
-                {(img.category_override ||
-                  img.author_override ||
-                  (img.tags_override && Object.keys(img.tags_override).length > 0)) && (
+                {(Boolean(img.category_override) ||
+                  Boolean(img.author_override) ||
+                  Boolean(img.author_url_override) ||
+                  (img.tags_override != null && typeof img.tags_override === "object")) && (
                   <span className="ml-auto rounded bg-purple-700 px-2 py-0.5 text-xs text-white">Override</span>
                 )}
               </button>
@@ -298,6 +390,7 @@ function AdminSourcePathBrowser({ sourceId, sourceSlug, metadataList, onEditMeta
 
       {selectedImage && (
         <AdminImageOverrideModal
+          key={selectedImage.id}
           image={selectedImage}
           categories={categories}
           metadataList={metadataList}
