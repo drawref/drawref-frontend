@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Category, Image, TagMap, Source, PathMetadata, AppSettings } from "../types/drawref";
 import { string } from "prop-types";
+import { sortSources } from "./utilities";
 
 interface AddCategoryRequest {
   token: string;
@@ -214,6 +215,7 @@ export const api = createApi({
           Authorization: `Bearer ${token}`,
         },
       }),
+      transformResponse: (response: Source[]) => sortSources(response),
       providesTags: ["sources"],
     }),
     getSource: build.query<Source, SourceSlugParam>({
