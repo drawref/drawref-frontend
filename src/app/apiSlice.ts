@@ -44,6 +44,7 @@ interface GetCategoryImagesResponse {
 interface GetSessionRequest {
   category: string;
   tags: TagMap;
+  source?: number;
 }
 
 interface GetAvailableImageCountResponse {
@@ -315,22 +316,24 @@ export const api = createApi({
     // sessions
     //
     getSession: build.query<Image[], GetSessionRequest>({
-      query: ({ category, tags }) => ({
+      query: ({ category, tags, source }) => ({
         url: `session`,
         method: "GET",
         params: {
           category: category,
           tags: JSON.stringify(tags),
+          ...(source ? { source } : {}),
         },
       }),
     }),
     getAvailableImageCount: build.query<GetAvailableImageCountResponse, GetSessionRequest>({
-      query: ({ category, tags }) => ({
+      query: ({ category, tags, source }) => ({
         url: `session/count`,
         method: "GET",
         params: {
           category: category,
           tags: JSON.stringify(tags),
+          ...(source ? { source } : {}),
         },
       }),
       providesTags: ["category-images"],

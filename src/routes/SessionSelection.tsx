@@ -7,9 +7,10 @@ import { classLengths, staticImageTimes } from "../app/sessionTimes";
 import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
-import { useGetAvailableImageCountQuery, useGetCategoriesQuery } from "../app/apiSlice";
+import { useGetAvailableImageCountQuery, useGetCategoriesQuery, useGetSourcesQuery } from "../app/apiSlice";
 import SessionCheckboxGroup from "../components/SessionCheckboxGroup";
 import { useDebouncedState } from "../app/useDebouncedState";
+import { useAppSelector } from "../app/hooks";
 
 export async function loader({ params }: { params: Params<"categoryId"> }) {
   const categoryId = params.categoryId;
@@ -20,16 +21,20 @@ function handleSubmit(
   category: string,
   tags: TagMap,
   timing: TimingData,
+  source: string,
   navigate: NavigateFunction,
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
 
-  const searchBarParams = {
+  const searchBarParams: Record<string, string> = {
     category,
     tags: JSON.stringify(tags),
     timing: JSON.stringify(timing),
   };
+  if (source) {
+    searchBarParams.source = source;
+  }
   navigate({
     pathname: `/session`,
     search: `?${createSearchParams(searchBarParams)}`,
@@ -37,10 +42,14 @@ function handleSubmit(
 }
 
 function SessionSelection() {
+  const user = useAppSelector((state) => state.userProfile);
+  const isAdmin = user.loggedIn && user.admin;
+
   const [timingType, setTimingType] = useState("static");
   const [staticTime, setStaticTime] = useState("5m");
   const [classLength, setClassLength] = useState("15m");
   const [tags, setTags] = useState<TagMap>({});
+  const [selectedSource, setSelectedSource] = useState("");
   const [debouncedTags, setDebouncedTags, isWaitingToUpdateTags] = useDebouncedState<TagMap>({}, 700);
 
   const navigate = useNavigate();
@@ -49,9 +58,14 @@ function SessionSelection() {
   const { data: categories, isLoading } = useGetCategoriesQuery();
   var category = categories && categories.filter((cat) => cat.id === categoryId)[0];
 
+  const { data: sources } = useGetSourcesQuery({ token: user.token }, { skip: !isAdmin });
+
+  const activeSource = isAdmin ? selectedSource : "";
+
   const { data: availableImageData, isFetching: isFetchingAvailableImageData } = useGetAvailableImageCountQuery({
     category: categoryId,
     tags: debouncedTags,
+    source: activeSource ? parseInt(activeSource, 10) : undefined,
   });
   var availableImages = availableImageData ? availableImageData.images : "unknown";
   var loadingAvailableImages = isWaitingToUpdateTags || isFetchingAvailableImageData;
@@ -72,7 +86,7 @@ function SessionSelection() {
             <h1 className="mb-6 mt-10 text-3xl font-semibold">{category.display_name || category.id}</h1>
             <form
               className="mb-6 flex flex-col gap-3"
-              onSubmit={handleSubmit.bind(null, categoryId, tags, timing, navigate)}
+              onSubmit={handleSubmit.bind(null, categoryId, tags, timing, activeSource, navigate)}
             >
               <div className="mx-auto grid grid-cols-4 gap-x-7 gap-y-4">
                 {category.tags && (
@@ -143,6 +157,28 @@ function SessionSelection() {
                           {info.display}
                         </option>
                       ))}
+                    </select>
+                  </>
+                )}
+                {isAdmin && (
+                  <>
+                    <label className="text-right text-lg font-semibold" htmlFor="source">
+                      Source
+                    </label>
+                    <select
+                      name="source"
+                      id="source"
+                      className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
+                      value={selectedSource}
+                      onChange={(e) => setSelectedSource(e.target.value)}
+                    >
+                      <option value="">All sources</option>
+                      {sources &&
+                        sources.map((src) => (
+                          <option key={src.id} value={src.id}>
+                            {src.name}
+                          </option>
+                        ))}
                     </select>
                   </>
                 )}
