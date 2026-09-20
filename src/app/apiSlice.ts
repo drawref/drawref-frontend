@@ -288,7 +288,7 @@ export const api = createApi({
         },
         body,
       }),
-      invalidatesTags: ["source-path-metadata", "source-directories"],
+      invalidatesTags: ["source-path-metadata", "source-directories", "category-images"],
     }),
     deletePathMetadata: build.mutation<OkResponse, { token: string; slug: string; id: number }>({
       query: ({ token, slug, id }) => ({
@@ -299,7 +299,7 @@ export const api = createApi({
         },
         body: { id },
       }),
-      invalidatesTags: ["source-path-metadata", "source-directories"],
+      invalidatesTags: ["source-path-metadata", "source-directories", "category-images"],
     }),
     editImage: build.mutation<Image, { token: string; id: number; body: Partial<Image> }>({
       query: ({ token, id, body }) => ({
@@ -310,7 +310,7 @@ export const api = createApi({
         },
         body,
       }),
-      invalidatesTags: ["category-images", "source-directories"],
+      invalidatesTags: ["category-images", "source-directories", "category-images"],
     }),
 
     // sessions
