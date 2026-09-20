@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import slugify from "slugify";
 
 import { Category, Tag } from "../types/drawref";
@@ -59,6 +59,18 @@ function AdminCategoryInfoBox({ name, coverId, coverUrl, tags, onSubmit, error }
   const [cName, setCName] = useState(name || "");
   const [cCoverId, setCCoverId] = useState<number | undefined>(coverId);
   const [cTags, setCTags] = useState(stringifyTags(tags || []));
+
+  useEffect(() => {
+    setCCoverId(coverId);
+  }, [coverId]);
+
+  useEffect(() => {
+    setCName(name || "");
+  }, [name]);
+
+  useEffect(() => {
+    setCTags(stringifyTags(tags || []));
+  }, [tags]);
 
   const errorToShow = error;
 

@@ -5,12 +5,15 @@ import TheHeader from "../components/TheHeader";
 import TheFooter from "../components/TheFooter";
 import TheLoadingModal from "../components/TheLoadingModal";
 import AdminCategoryInfoBox from "../components/AdminCategoryInfoBox";
+import AdminImageActionModal from "../components/AdminImageActionModal";
+import AdminImageModal from "../components/AdminImageModal";
 
 import { useAppSelector } from "../app/hooks";
 import { useGetCategoryQuery, useEditCategoryMutation, useGetCategoryImagesQuery } from "../app/apiSlice";
 import NotFound from "./NotFound";
 import { parseError } from "../app/utilities";
 import Pagination from "../components/Pagination";
+import { Image } from "../types/drawref";
 
 type Params = {
   categoryId: string;
@@ -25,6 +28,8 @@ function AdminEditCategory() {
   }
 
   const [imagesPage, setImagesPage] = useState(1);
+  const [selectedImageForAction, setSelectedImageForAction] = useState<Image | null>(null);
+  const [selectedImageForOverride, setSelectedImageForOverride] = useState<Image | null>(null);
 
   const { data: categoryData, isLoading } = useGetCategoryQuery(categoryId);
   const {
@@ -77,16 +82,25 @@ function AdminEditCategory() {
                   <div className="flex flex-wrap items-center justify-center gap-4">
                     {categoryImages &&
                       categoryImages.images.map((img) => (
-                        <div
+                        <button
+                          type="button"
                           key={img.id}
-                          className="h-20 w-20 rounded-lg bg-cover"
+                          onClick={() => setSelectedImageForAction(img)}
+                          className="group relative h-20 w-20 overflow-hidden rounded-lg bg-cover transition-all hover:scale-105 hover:ring-2 hover:ring-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400"
                           data-image={img.id}
+                          title={`Image #${img.id}${img.relative_path ? ` - ${img.relative_path}` : ""}`}
                           style={{
                             backgroundImage: `url(${encodeURI(
                               `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${img.id}`,
                             )})`,
                           }}
-                        ></div>
+                        >
+                          {categoryData?.cover_image === img.id && (
+                            <span className="absolute inset-x-0 bottom-0 bg-primary-950/80 py-0.5 text-center text-[10px] font-semibold text-green-300">
+                              Cover
+                            </span>
+                          )}
+                        </button>
                       ))}
                   </div>
                 </div>
@@ -94,6 +108,48 @@ function AdminEditCategory() {
             </div>
           </div>
         </div>
+
+        {selectedImageForAction && (
+          <AdminImageActionModal
+            image={selectedImageForAction}
+            isCover={categoryData?.cover_image === selectedImageForAction.id}
+            isSettingCover={isEditingCategory}
+            onSetCategoryCover={async () => {
+              if (!categoryData) return;
+              try {
+                await editCategory({
+                  id: categoryId,
+                  token: user.token,
+                  body: {
+                    ...categoryData,
+                    display_name: categoryData.display_name || categoryData.id,
+                    tags: categoryData.tags || [],
+                    cover_image: selectedImageForAction.id,
+                  },
+                }).unwrap();
+                setSelectedImageForAction(null);
+              } catch (err) {
+                console.error(err);
+                alert(`Failed to set category cover: ${parseError(err as any)}`);
+              }
+            }}
+            onEditOverrides={() => {
+              const img = selectedImageForAction;
+              setSelectedImageForAction(null);
+              setSelectedImageForOverride(img);
+            }}
+            onClose={() => setSelectedImageForAction(null)}
+          />
+        )}
+
+        {selectedImageForOverride && (
+          <AdminImageModal
+            key={selectedImageForOverride.id}
+            image={selectedImageForOverride}
+            onClose={() => setSelectedImageForOverride(null)}
+          />
+        )}
+
         <TheFooter />
       </div>
     </>

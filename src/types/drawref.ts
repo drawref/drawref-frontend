@@ -21,10 +21,10 @@ export type Image = {
   file_hash?: string;
   local_path?: string;
   external_url?: string;
-  category_override?: string;
-  author_override?: string;
-  author_url_override?: string;
-  tags_override?: TagMap;
+  category_override?: string | null;
+  author_override?: string | null;
+  author_url_override?: string | null;
+  tags_override?: TagMap | null;
   effective_category_id?: string;
   effective_author?: string;
   effective_author_url?: string;
