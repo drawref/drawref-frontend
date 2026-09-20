@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Category, Image, TagMap, Source, PathMetadata } from "../types/drawref";
+import { Category, Image, TagMap, Source, PathMetadata, AppSettings } from "../types/drawref";
 import { string } from "prop-types";
 
 interface AddCategoryRequest {
@@ -96,7 +96,7 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_DRAWREF_API || "http://localhost:3300/api/",
   }),
-  tagTypes: ["categories", "category-images", "sources", "source-path-metadata", "source-directories"],
+  tagTypes: ["categories", "category-images", "sources", "source-path-metadata", "source-directories", "settings"],
   endpoints: (build) => ({
     loadSamples: build.mutation<OkResponse, RequestWithToken>({
       query: (args) => ({
@@ -357,6 +357,30 @@ export const api = createApi({
         body,
       }),
     }),
+
+    // settings
+    //
+    getSettings: build.query<AppSettings, RequestWithToken>({
+      query: ({ token }) => ({
+        url: `settings`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      providesTags: ["settings"],
+    }),
+    updateSettings: build.mutation<AppSettings, { token: string; body: { thumbnail_min_filesize_kb?: number } }>({
+      query: ({ token, body }) => ({
+        url: `settings`,
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      }),
+      invalidatesTags: ["settings"],
+    }),
   }),
 });
 
@@ -386,4 +410,6 @@ export const {
   useGetAvailableImageCountQuery,
   useGetUserQuery,
   useLoginUserMutation,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = api;

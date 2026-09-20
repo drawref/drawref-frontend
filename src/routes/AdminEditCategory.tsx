@@ -91,7 +91,7 @@ function AdminEditCategory() {
                           title={`Image #${img.id}${img.relative_path ? ` - ${img.relative_path}` : ""}`}
                           style={{
                             backgroundImage: `url(${encodeURI(
-                              `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${img.id}`,
+                              `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${img.id}?max=300`,
                             )})`,
                           }}
                         >

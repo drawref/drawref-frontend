@@ -24,7 +24,7 @@ function Landing() {
                   name={cat.display_name || cat.id}
                   imageUrl={
                     cat.cover_image
-                      ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${cat.cover_image}`
+                      ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${cat.cover_image}?max=600`
                       : undefined
                   }
                 />

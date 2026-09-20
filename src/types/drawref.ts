@@ -58,3 +58,10 @@ export type PathMetadata = {
   tags: TagMap;
   tag_mode: string;
 };
+
+export type AppSettings = {
+  thumbnail_min_filesize_kb: number;
+  cache_enabled: boolean;
+  cache_path?: string;
+  allowed_cache_sizes: number[];
+};
