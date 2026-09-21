@@ -6,6 +6,7 @@ import { mdiStepBackward, mdiStop, mdiPause, mdiPlay, mdiStepForward, mdiHeart }
 import TheLoadingModal from "../components/TheLoadingModal";
 import SessionTimer from "../components/SessionTimer";
 
+import { useInitialViewportTarget } from "../hooks/useInitialViewportTarget";
 import { useGetSessionQuery } from "../app/apiSlice";
 import { staticImageTimes, classLengths } from "../app/sessionTimes";
 import { useTimer } from "../app/useTimer";
@@ -15,6 +16,9 @@ function Session() {
   const navigate = useNavigate();
   const [searchBarParams, setSearchBarParams] = useSearchParams();
   const [showUi, setShowUi] = useState(true);
+
+  // get the initial viewport size for image request sizing
+  const imageSize = useInitialViewportTarget();
 
   // clicking buttons from timer actions
   const stopButtonRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +81,7 @@ function Session() {
     path: "",
   };
   const currentImageUrl = currentImageData.id
-    ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${currentImageData.id}`
+    ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${currentImageData.id}?max=${imageSize}`
     : "";
 
   return (
