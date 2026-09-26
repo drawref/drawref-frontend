@@ -88,7 +88,7 @@ function Session() {
   // pan-and-zoom the reference image with mouse-wheel or pinch gestures.
   // resetting on image id means each new reference starts at the default zoom.
   const zoomContainerRef = useRef<HTMLDivElement>(null);
-  const { transform, zoomed } = useImageZoom(zoomContainerRef, currentImageData.id);
+  const { transform, zoomed, consumeSuppressedClick } = useImageZoom(zoomContainerRef, currentImageData.id);
 
   return (
     <>
@@ -97,7 +97,13 @@ function Session() {
         <div
           ref={zoomContainerRef}
           className="absolute left-0 top-0 z-10 h-screen w-screen touch-none overflow-hidden"
-          onClick={() => setShowUi(!showUi)}
+          onClick={() => {
+            // dragging or pinching the image shouldn't toggle the UI elements
+            if (consumeSuppressedClick()) {
+              return;
+            }
+            setShowUi(!showUi);
+          }}
         >
           {currentImageUrl && (
             <img

@@ -5,6 +5,8 @@ export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 8;
 // how much each mouse-wheel notch changes the zoom level
 const WHEEL_ZOOM_STEP = 0.0025;
+// total pointer travel (px) beyond which a gesture counts as a drag, not a tap
+const DRAG_THRESHOLD = 6;
 
 interface Transform {
   scale: number;
@@ -71,6 +73,9 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
   const transformRef = useRef<Transform>(IDENTITY);
   const pointers = useRef<Map<number, PointerInfo>>(new Map());
   const pinchStart = useRef<{ distance: number; midpoint: PointerInfo; transform: Transform } | null>(null);
+  // total pointer travel for the current gesture, used to tell taps from drags
+  const dragDistance = useRef(0);
+  const suppressClick = useRef(false);
 
   const applyTransform = useCallback(
     (next: Transform, anchor?: PointerInfo) => {
@@ -116,6 +121,11 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
     };
 
     const onPointerDown = (event: PointerEvent) => {
+      // a fresh gesture only starts once every pointer has been lifted
+      if (pointers.current.size === 0) {
+        dragDistance.current = 0;
+        suppressClick.current = false;
+      }
       pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (pointers.current.size === 2) {
         const touches = {
@@ -138,6 +148,12 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
       if (!previous) return;
       const next = { x: event.clientX, y: event.clientY };
       pointers.current.set(event.pointerId, next);
+
+      // accumulate travel so a real drag can be distinguished from a tap
+      dragDistance.current += Math.hypot(next.x - previous.x, next.y - previous.y);
+      if (dragDistance.current > DRAG_THRESHOLD) {
+        suppressClick.current = true;
+      }
 
       if (pointers.current.size >= 2 && pinchStart.current) {
         // touch: pinch-to-zoom around the midpoint of the two fingers
@@ -179,6 +195,16 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
     element.addEventListener("pointercancel", onPointerUp);
     element.addEventListener("pointerleave", onPointerUp);
 
+    // swallow the click that finishes a drag/zoom so it isn't treated as a tap
+    const onClickCapture = (event: MouseEvent) => {
+      if (suppressClick.current) {
+        event.stopPropagation();
+        event.preventDefault();
+        suppressClick.current = false;
+      }
+    };
+    element.addEventListener("click", onClickCapture, true);
+
     return () => {
       element.removeEventListener("wheel", onWheel);
       element.removeEventListener("pointerdown", onPointerDown);
@@ -186,6 +212,7 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
       element.removeEventListener("pointerup", onPointerUp);
       element.removeEventListener("pointercancel", onPointerUp);
       element.removeEventListener("pointerleave", onPointerUp);
+      element.removeEventListener("click", onClickCapture, true);
     };
   }, [ref, applyTransform]);
 
@@ -220,5 +247,15 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
     };
   }, [ref, applyTransform]);
 
-  return { transform, zoomed: transform.scale > MIN_ZOOM };
+  // true once per gesture if the previous gesture was a drag/zoom, so callers
+  // can ignore the trailing click that follows it
+  const consumeSuppressedClick = useCallback(() => {
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      return true;
+    }
+    return false;
+  }, []);
+
+  return { transform, zoomed: transform.scale > MIN_ZOOM, consumeSuppressedClick };
 }
