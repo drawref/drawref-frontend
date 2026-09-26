@@ -110,9 +110,10 @@ function Session() {
               src={currentImageUrl}
               alt=""
               draggable={false}
-              className="pointer-events-none absolute inset-0 h-full w-full select-none object-contain"
+              className="absolute inset-0 h-full w-full select-none object-contain"
               style={{
                 transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                touchAction: "none",
                 cursor: zoomed ? "grab" : "default",
               }}
             />

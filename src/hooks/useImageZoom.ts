@@ -216,6 +216,64 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
     };
   }, [ref, applyTransform]);
 
+  // Touch devices (notably mobile safari) hand multi-touch pinch to the browser's
+  // page-zoom unless we handle raw touch events. so we handle pinch via touchstart/
+  // touchmove/touchend here.
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const markGesture = () => {
+      suppressClick.current = true;
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        markGesture();
+        dragDistance.current = 0;
+        pinchStart.current = {
+          distance: touchDistance(event.touches),
+          midpoint: touchMidpoint(event.touches),
+          transform: transformRef.current,
+        };
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length !== 2 || !pinchStart.current) return;
+      // stop iPadOS from hijacking the pinch for native page zoom
+      event.preventDefault();
+      markGesture();
+
+      const distance = touchDistance(event.touches);
+      const midpoint = touchMidpoint(event.touches);
+      const start = pinchStart.current;
+      applyTransform(
+        { scale: start.transform.scale * (distance / start.distance), x: start.transform.x, y: start.transform.y },
+        midpoint,
+      );
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      if (event.touches.length < 2) {
+        pinchStart.current = null;
+      }
+    };
+
+    element.addEventListener("touchstart", onTouchStart, { passive: false });
+    element.addEventListener("touchmove", onTouchMove, { passive: false });
+    element.addEventListener("touchend", onTouchEnd);
+    element.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      element.removeEventListener("touchstart", onTouchStart);
+      element.removeEventListener("touchmove", onTouchMove);
+      element.removeEventListener("touchend", onTouchEnd);
+      element.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [ref, applyTransform]);
+
   // Safari on iOS still fires non-standard gesture events for pinch-to-zoom
   useEffect(() => {
     const element = ref.current;
