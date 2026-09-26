@@ -14,7 +14,7 @@ interface Transform {
   y: number;
 }
 
-interface PointerInfo {
+interface Point {
   x: number;
   y: number;
 }
@@ -33,9 +33,14 @@ function touchDistance(touches: TouchList) {
   return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
 }
 
-function touchMidpoint(touches: TouchList): PointerInfo {
+function touchMidpoint(touches: TouchList): Point {
   const [a, b] = [touches[0], touches[1]];
   return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+}
+
+/** Position of a single touch, used for one-finger panning. */
+function touchMidpointSingle(touches: TouchList): Point {
+  return { x: touches[0].clientX, y: touches[0].clientY };
 }
 
 /**
@@ -71,28 +76,39 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
   const [transform, setTransform] = useState<Transform>(IDENTITY);
   // mutable copies of gesture state so event listeners don't need re-binding
   const transformRef = useRef<Transform>(IDENTITY);
-  const pointers = useRef<Map<number, PointerInfo>>(new Map());
-  const pinchStart = useRef<{ distance: number; midpoint: PointerInfo; transform: Transform } | null>(null);
-  // total pointer travel for the current gesture, used to tell taps from drags
+  // active mouse pointers, and active touches, keyed by identifier
+  const pointers = useRef<Map<number, Point>>(new Map());
+  const touches = useRef<Map<number, Point>>(new Map());
+  const pinchStart = useRef<{ distance: number; midpoint: Point; transform: Transform } | null>(null);
+  const panStart = useRef<{ midpoint: Point; transform: Transform } | null>(null);
+  // total travel for the current gesture, used to tell taps from drags
   const dragDistance = useRef(0);
   const suppressClick = useRef(false);
 
   const applyTransform = useCallback(
-    (next: Transform, anchor?: PointerInfo) => {
+    (next: Transform, gesture?: { start: Transform; startMidpoint: Point; midpoint: Point }) => {
       const element = ref.current;
       const rect = element?.getBoundingClientRect();
       const width = rect?.width ?? 0;
       const height = rect?.height ?? 0;
 
       const clampedScale = clamp(next.scale, MIN_ZOOM, MAX_ZOOM);
-      // keep the point under the anchor (cursor / pinch midpoint) fixed on screen
       let { x, y } = next;
-      if (anchor && element) {
+
+      if (gesture && element) {
+        // Keep the image point that sat under the gesture midpoint pinned to the
+        // midpoint's current position. For a pure zoom this keeps the pivot under
+        // the fingers; for a two-finger drag it also moves the image along.
         const centreX = rect!.left + width / 2;
         const centreY = rect!.top + height / 2;
-        const ratio = clampedScale / transformRef.current.scale;
-        x = anchor.x - centreX - ratio * (anchor.x - centreX - x);
-        y = anchor.y - centreY - ratio * (anchor.y - centreY - y);
+        const ratio = clampedScale / gesture.start.scale;
+
+        // offset of the anchor from the container centre, in image space
+        const startOffsetX = gesture.startMidpoint.x - centreX - gesture.start.x;
+        const startOffsetY = gesture.startMidpoint.y - centreY - gesture.start.y;
+
+        x = gesture.midpoint.x - centreX - startOffsetX * ratio;
+        y = gesture.midpoint.y - centreY - startOffsetY * ratio;
       }
 
       const resolved =
@@ -109,41 +125,156 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
     setTransform(IDENTITY);
   }, [resetKey]);
 
+  // Raw touch handling: this is what actually works on iPadOS. Safari claims an
+  // unhandled pinch for its own page zoom before pointer events reach us, so a
+  // two-finger pinch/drag is driven from touchstart/touchmove/touchend directly.
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    // desktop: mouse-wheel scrolling zooms toward the cursor
+    const beginTwoFingerGesture = (list: TouchList) => {
+      pinchStart.current = {
+        distance: touchDistance(list),
+        midpoint: touchMidpoint(list),
+        transform: transformRef.current,
+      };
+      panStart.current = { midpoint: touchMidpoint(list), transform: transformRef.current };
+    };
+
+    const snapshotTouches = (list: TouchList) => {
+      touches.current = new Map(
+        Array.from(list).map((touch) => [touch.identifier, { x: touch.clientX, y: touch.clientY }]),
+      );
+    };
+
+    // Re-baseline a one-finger pan whenever the number of active touches changes
+    // (e.g. lifting one finger out of a pinch must not jump the image). Uses the
+    // latest known touch point so the delta starts from zero.
+    let lastTouchCount = 0;
+    const refreshPanOrigin = (list: TouchList) => {
+      if (list.length === 1) {
+        panStart.current = { midpoint: touchMidpointSingle(list), transform: transformRef.current };
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      snapshotTouches(event.touches);
+      lastTouchCount = event.touches.length;
+      if (event.touches.length >= 2) {
+        // prevent the very first move being claimed by native page zoom
+        event.preventDefault();
+        dragDistance.current = 0;
+        suppressClick.current = true;
+        beginTwoFingerGesture(event.touches);
+      } else {
+        // one finger only pans once we're zoomed in; at default zoom it is left
+        // alone so taps and page gestures still work normally
+        panStart.current = { midpoint: touchMidpointSingle(event.touches), transform: transformRef.current };
+      }
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      snapshotTouches(event.touches);
+
+      // the finger count changed (e.g. pinch -> one finger); restart the baseline
+      if (event.touches.length !== lastTouchCount) {
+        lastTouchCount = event.touches.length;
+        refreshPanOrigin(event.touches);
+      }
+
+      // one finger: pan only while zoomed in, otherwise ignore it entirely
+      if (event.touches.length < 2) {
+        if (event.touches.length === 1 && transformRef.current.scale > MIN_ZOOM) {
+          // keep the page from scroll-flicking under the finger while panning
+          event.preventDefault();
+          dragDistance.current += 1;
+          if (dragDistance.current > DRAG_THRESHOLD) {
+            suppressClick.current = true;
+          }
+
+          const midpoint = touchMidpointSingle(event.touches);
+          const pan = panStart.current;
+          if (pan) {
+            applyTransform(
+              { ...transformRef.current, x: pan.transform.x, y: pan.transform.y },
+              { start: pan.transform, startMidpoint: pan.midpoint, midpoint },
+            );
+          }
+        }
+        return;
+      }
+
+      // stop iPadOS hijacking the pinch/drag for its own page gestures
+      event.preventDefault();
+      suppressClick.current = true;
+      if (!pinchStart.current) {
+        beginTwoFingerGesture(event.touches);
+      }
+
+      const distance = touchDistance(event.touches);
+      const midpoint = touchMidpoint(event.touches);
+      const pinch = pinchStart.current!;
+
+      // pinch scales around the fingers; dragging the midpoint moves the image
+      const scale = clamp(pinch.transform.scale * (distance / pinch.distance), MIN_ZOOM, MAX_ZOOM);
+      applyTransform(
+        { scale, x: pinch.transform.x, y: pinch.transform.y },
+        { start: pinch.transform, startMidpoint: pinch.midpoint, midpoint },
+      );
+    };
+
+    const onTouchEnd = (event: TouchEvent) => {
+      snapshotTouches(event.touches);
+      lastTouchCount = event.touches.length;
+      if (event.touches.length < 2) {
+        pinchStart.current = null;
+        panStart.current = null;
+      }
+      // if a finger remains after a pinch, restart panning from where it is now
+      refreshPanOrigin(event.touches);
+    };
+
+    element.addEventListener("touchstart", onTouchStart, { passive: false });
+    element.addEventListener("touchmove", onTouchMove, { passive: false });
+    element.addEventListener("touchend", onTouchEnd);
+    element.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      element.removeEventListener("touchstart", onTouchStart);
+      element.removeEventListener("touchmove", onTouchMove);
+      element.removeEventListener("touchend", onTouchEnd);
+      element.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [ref, applyTransform]);
+
+  // Desktop-only handling: mouse wheel zooms, mouse drag pans. Touch is dealt
+  // with by the raw touch listeners above, so touch pointers are ignored here.
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const nextScale = transformRef.current.scale * (1 - event.deltaY * WHEEL_ZOOM_STEP);
-      applyTransform({ ...transformRef.current, scale: nextScale }, { x: event.clientX, y: event.clientY });
+      const start = transformRef.current;
+      const nextScale = start.scale * (1 - event.deltaY * WHEEL_ZOOM_STEP);
+      const pointer = { x: event.clientX, y: event.clientY };
+      applyTransform(
+        { scale: nextScale, x: start.x, y: start.y },
+        { start, startMidpoint: pointer, midpoint: pointer },
+      );
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      // a fresh gesture only starts once every pointer has been lifted
+      if (event.pointerType === "touch") return;
       if (pointers.current.size === 0) {
         dragDistance.current = 0;
         suppressClick.current = false;
       }
       pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
-      if (pointers.current.size === 2) {
-        const touches = {
-          length: 2,
-          0: pointers.current.values().next().value!,
-          1: [...pointers.current.values()][1]!,
-        } as unknown as TouchList;
-        pinchStart.current = {
-          distance: touchDistance(touches),
-          midpoint: touchMidpoint(touches),
-          transform: transformRef.current,
-        };
-      }
     };
 
-    // track the first pointer so a single mouse drag can pan a zoomed image
-    let panning = false;
     const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
       const previous = pointers.current.get(event.pointerId);
       if (!previous) return;
       const next = { x: event.clientX, y: event.clientY };
@@ -155,23 +286,10 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
         suppressClick.current = true;
       }
 
-      if (pointers.current.size >= 2 && pinchStart.current) {
-        // touch: pinch-to-zoom around the midpoint of the two fingers
-        event.preventDefault();
-        const values = [...pointers.current.values()];
-        const touches = { length: 2, 0: values[0], 1: values[1] } as unknown as TouchList;
-        const distance = touchDistance(touches);
-        const midpoint = touchMidpoint(touches);
-        const start = pinchStart.current;
-        applyTransform(
-          { scale: start.transform.scale * (distance / start.distance), x: start.transform.x, y: start.transform.y },
-          midpoint,
-        );
-      } else if (pointers.current.size === 1 && (panning || transformRef.current.scale > MIN_ZOOM)) {
-        // mouse: dragging pans the zoomed image
-        panning = true;
+      // mouse drag pans; there is nothing to pan until we're zoomed in
+      if (transformRef.current.scale > MIN_ZOOM) {
         applyTransform({
-          ...transformRef.current,
+          scale: transformRef.current.scale,
           x: transformRef.current.x + (next.x - previous.x),
           y: transformRef.current.y + (next.y - previous.y),
         });
@@ -180,12 +298,6 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
 
     const onPointerUp = (event: PointerEvent) => {
       pointers.current.delete(event.pointerId);
-      if (pointers.current.size < 2) {
-        pinchStart.current = null;
-      }
-      if (pointers.current.size === 0) {
-        panning = false;
-      }
     };
 
     element.addEventListener("wheel", onWheel, { passive: false });
@@ -213,95 +325,6 @@ export function useImageZoom(ref: React.RefObject<HTMLElement | null>, resetKey?
       element.removeEventListener("pointercancel", onPointerUp);
       element.removeEventListener("pointerleave", onPointerUp);
       element.removeEventListener("click", onClickCapture, true);
-    };
-  }, [ref, applyTransform]);
-
-  // Touch devices (notably mobile safari) hand multi-touch pinch to the browser's
-  // page-zoom unless we handle raw touch events. so we handle pinch via touchstart/
-  // touchmove/touchend here.
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const markGesture = () => {
-      suppressClick.current = true;
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      if (event.touches.length === 2) {
-        event.preventDefault();
-        markGesture();
-        dragDistance.current = 0;
-        pinchStart.current = {
-          distance: touchDistance(event.touches),
-          midpoint: touchMidpoint(event.touches),
-          transform: transformRef.current,
-        };
-      }
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      if (event.touches.length !== 2 || !pinchStart.current) return;
-      // stop iPadOS from hijacking the pinch for native page zoom
-      event.preventDefault();
-      markGesture();
-
-      const distance = touchDistance(event.touches);
-      const midpoint = touchMidpoint(event.touches);
-      const start = pinchStart.current;
-      applyTransform(
-        { scale: start.transform.scale * (distance / start.distance), x: start.transform.x, y: start.transform.y },
-        midpoint,
-      );
-    };
-
-    const onTouchEnd = (event: TouchEvent) => {
-      if (event.touches.length < 2) {
-        pinchStart.current = null;
-      }
-    };
-
-    element.addEventListener("touchstart", onTouchStart, { passive: false });
-    element.addEventListener("touchmove", onTouchMove, { passive: false });
-    element.addEventListener("touchend", onTouchEnd);
-    element.addEventListener("touchcancel", onTouchEnd);
-
-    return () => {
-      element.removeEventListener("touchstart", onTouchStart);
-      element.removeEventListener("touchmove", onTouchMove);
-      element.removeEventListener("touchend", onTouchEnd);
-      element.removeEventListener("touchcancel", onTouchEnd);
-    };
-  }, [ref, applyTransform]);
-
-  // Safari on iOS still fires non-standard gesture events for pinch-to-zoom
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    let gestureStartScale = 1;
-    const onGestureStart = (event: Event) => {
-      event.preventDefault();
-      gestureStartScale = transformRef.current.scale;
-    };
-    const onGestureChange = (event: Event) => {
-      event.preventDefault();
-      const scaleEvent = event as Event & { scale: number; clientX: number; clientY: number };
-      applyTransform(
-        { ...transformRef.current, scale: gestureStartScale * scaleEvent.scale },
-        { x: scaleEvent.clientX, y: scaleEvent.clientY },
-      );
-    };
-    const onGestureEnd = (event: Event) => event.preventDefault();
-
-    element.addEventListener("gesturestart", onGestureStart);
-    element.addEventListener("gesturechange", onGestureChange);
-    element.addEventListener("gestureend", onGestureEnd);
-
-    return () => {
-      element.removeEventListener("gesturestart", onGestureStart);
-      element.removeEventListener("gesturechange", onGestureChange);
-      element.removeEventListener("gestureend", onGestureEnd);
     };
   }, [ref, applyTransform]);
 

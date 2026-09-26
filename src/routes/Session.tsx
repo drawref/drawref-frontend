@@ -96,7 +96,7 @@ function Session() {
       <div className="App z-0 bg-primary-950 text-white">
         <div
           ref={zoomContainerRef}
-          className="absolute left-0 top-0 z-10 h-screen w-screen touch-none overflow-hidden"
+          className="absolute left-0 top-0 z-10 h-[100dvh] h-screen w-screen touch-none overflow-hidden"
           onClick={() => {
             // dragging or pinching the image shouldn't toggle the UI elements
             if (consumeSuppressedClick()) {
@@ -110,10 +110,9 @@ function Session() {
               src={currentImageUrl}
               alt=""
               draggable={false}
-              className="absolute inset-0 h-full w-full select-none object-contain"
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-contain"
               style={{
                 transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-                touchAction: "none",
                 cursor: zoomed ? "grab" : "default",
               }}
             />
@@ -134,7 +133,12 @@ function Session() {
             </div>
           )}
           {showUi && (
-            <div className="flex min-h-8 min-w-20 justify-center rounded-t-3xl bg-primary-900 bg-opacity-95 px-2">
+            <div className="relative flex min-h-8 min-w-20 justify-center rounded-t-3xl bg-primary-900 bg-opacity-95 px-2 pb-[env(safe-area-inset-bottom)]">
+              {/* extend the toolbar background through bottom safe area */}
+              <div
+                className="pointer-events-none absolute inset-x-0 -z-10 h-[env(safe-area-inset-bottom)] rounded-b-3xl bg-primary-900 bg-opacity-95"
+                style={{ top: "100%" }}
+              />
               <button
                 type="button"
                 className="py-2 pl-4 pr-1.5"

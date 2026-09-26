@@ -1,6 +1,8 @@
 {
     "name": "DrawRef",
     "short_name": "DrawRef",
+    "id": "/",
+    "scope": "/",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
@@ -15,5 +17,6 @@
     ],
     "theme_color": "#4788d5",
     "background_color": "#4788d5",
-    "display": "standalone"
+    "display": "standalone",
+    "display_override": ["standalone"]
 }

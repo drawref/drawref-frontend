@@ -16,7 +16,7 @@ function SessionTimer({ seconds, onTimeEnded }: Props) {
 
   return (
     <div
-      className="absolute right-0 top-0 z-40 min-w-24 select-none rounded-bl-3xl bg-primary-900 bg-opacity-95 px-5 py-1.5 text-right text-lg"
+      className="absolute right-0 top-0 z-40 min-w-24 select-none rounded-bl-3xl bg-primary-900 bg-opacity-95 px-5 pb-1.5 pt-[calc(0.375rem+env(safe-area-inset-top))] text-right text-lg"
       style={{ opacity: showTime ? 1 : 0.1 }}
       onClick={() => setShowTime(!showTime)}
     >
