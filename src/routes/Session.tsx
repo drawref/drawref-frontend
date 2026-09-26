@@ -7,6 +7,7 @@ import TheLoadingModal from "../components/TheLoadingModal";
 import SessionTimer from "../components/SessionTimer";
 
 import { useInitialViewportTarget } from "../hooks/useInitialViewportTarget";
+import { useImageZoom } from "../hooks/useImageZoom";
 import { useGetSessionQuery } from "../app/apiSlice";
 import { staticImageTimes, classLengths } from "../app/sessionTimes";
 import { useTimer } from "../app/useTimer";
@@ -84,15 +85,33 @@ function Session() {
     ? `${import.meta.env.VITE_DRAWREF_IMAGE || "http://localhost:3300/image/"}${currentImageData.id}?max=${imageSize}`
     : "";
 
+  // pan-and-zoom the reference image with mouse-wheel or pinch gestures.
+  // resetting on image id means each new reference starts at the default zoom.
+  const zoomContainerRef = useRef<HTMLDivElement>(null);
+  const { transform, zoomed } = useImageZoom(zoomContainerRef, currentImageData.id);
+
   return (
     <>
       {isLoading && <TheLoadingModal />}
       <div className="App z-0 bg-primary-950 text-white">
         <div
-          className="absolute left-0 top-0 z-10 h-screen w-screen bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${encodeURI(currentImageUrl)})` }}
+          ref={zoomContainerRef}
+          className="absolute left-0 top-0 z-10 h-screen w-screen touch-none overflow-hidden"
           onClick={() => setShowUi(!showUi)}
-        ></div>
+        >
+          {currentImageUrl && (
+            <img
+              src={currentImageUrl}
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-contain"
+              style={{
+                transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                cursor: zoomed ? "grab" : "default",
+              }}
+            />
+          )}
+        </div>
         <SessionTimer seconds={secondsRemaining} />
         <div className="absolute bottom-0 left-0 z-40 flex w-screen flex-col items-center">
           {currentImageData && currentImageData.effective_author && (

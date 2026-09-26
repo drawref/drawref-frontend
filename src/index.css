@@ -23,6 +23,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* the session route handles wheel/pinch zoom itself; avoid page scroll/bounce */
+html:has(.App),
+body:has(.App) {
+  overscroll-behavior: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
