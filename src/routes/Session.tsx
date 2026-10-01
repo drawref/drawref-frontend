@@ -165,7 +165,7 @@ function Session() {
               <button
                 type="button"
                 className="px-1.5 py-2"
-                onClick={() => navigate(`/c/${category}`)}
+                onClick={() => navigate(`/c/${category}?${searchBarParams.toString()}`)}
                 ref={stopButtonRef}
               >
                 <Icon path={mdiStop} title="Stop session" size={1.2} className="text-white" />

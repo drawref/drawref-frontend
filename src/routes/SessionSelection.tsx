@@ -1,5 +1,12 @@
 import { FormEvent, useState } from "react";
-import { createSearchParams, NavigateFunction, Params, useLoaderData, useNavigate } from "react-router-dom";
+import {
+  createSearchParams,
+  NavigateFunction,
+  Params,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 import { TagMap, TimingData } from "../types/drawref";
 import { classLengths, staticImageTimes } from "../app/sessionTimes";
@@ -44,13 +51,22 @@ function handleSubmit(
 function SessionSelection() {
   const user = useAppSelector((state) => state.userProfile);
   const isAdmin = user.loggedIn && user.admin;
+  const [searchBarParams, setSearchBarParams] = useSearchParams();
 
-  const [timingType, setTimingType] = useState("static");
-  const [staticTime, setStaticTime] = useState("5m");
-  const [classLength, setClassLength] = useState("15m");
-  const [tags, setTags] = useState<TagMap>({});
-  const [selectedSource, setSelectedSource] = useState("");
-  const [debouncedTags, setDebouncedTags, isWaitingToUpdateTags] = useDebouncedState<TagMap>({}, 700);
+  function updateParam(key: string, value: unknown) {
+    const next = new URLSearchParams(searchBarParams);
+    next.set(key, typeof value === "string" ? value : JSON.stringify(value));
+    setSearchBarParams(next, { replace: true });
+  }
+
+  const initialTiming: TimingData = JSON.parse(searchBarParams.get("timing") || "{}");
+  const [timingType, setTimingType] = useState(initialTiming.timingType || "static");
+  const [staticTime, setStaticTime] = useState(initialTiming.staticTime || "5m");
+  const [classLength, setClassLength] = useState(initialTiming.classLength || "15m");
+  const initialTags: TagMap = JSON.parse(searchBarParams.get("tags") || "{}");
+  const [tags, setTags] = useState<TagMap>(initialTags);
+  const [selectedSource, setSelectedSource] = useState(searchBarParams.get("source") || "");
+  const [debouncedTags, setDebouncedTags, isWaitingToUpdateTags] = useDebouncedState<TagMap>(initialTags, 700);
 
   const navigate = useNavigate();
 
@@ -92,9 +108,11 @@ function SessionSelection() {
                 {category.tags && (
                   <SessionCheckboxGroup
                     tags={category.tags}
+                    initialData={initialTags}
                     onChange={(tags) => {
                       setTags(tags);
                       setDebouncedTags(tags);
+                      updateParam("tags", tags);
                     }}
                   />
                 )}
@@ -115,7 +133,10 @@ function SessionSelection() {
                   id="timing"
                   className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
                   value={timingType}
-                  onChange={(e) => setTimingType(e.target.value)}
+                  onChange={(e) => {
+                    setTimingType(e.target.value);
+                    updateParam("timing", { ...timing, timingType: e.target.value });
+                  }}
                 >
                   <option value="class">Class mode</option>
                   <option value="static">Static</option>
@@ -130,7 +151,10 @@ function SessionSelection() {
                       id="classLength"
                       className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
                       value={classLength}
-                      onChange={(e) => setClassLength(e.target.value)}
+                      onChange={(e) => {
+                        setClassLength(e.target.value);
+                        updateParam("timing", { ...timing, classLength: e.target.value });
+                      }}
                     >
                       {classLengths.map((info) => (
                         <option key={info.value} value={info.value}>
@@ -150,7 +174,10 @@ function SessionSelection() {
                       id="interval"
                       className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
                       value={staticTime}
-                      onChange={(e) => setStaticTime(e.target.value)}
+                      onChange={(e) => {
+                        setStaticTime(e.target.value);
+                        updateParam("timing", { ...timing, staticTime: e.target.value });
+                      }}
                     >
                       {staticImageTimes.map((info) => (
                         <option key={info.value} value={info.value}>
@@ -170,7 +197,10 @@ function SessionSelection() {
                       id="source"
                       className="col-span-2 rounded bg-primary-100 px-1.5 py-1.5 text-sm text-defaultText"
                       value={selectedSource}
-                      onChange={(e) => setSelectedSource(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedSource(e.target.value);
+                        updateParam("source", e.target.value);
+                      }}
                     >
                       <option value="">All sources</option>
                       {sources &&
